@@ -1,0 +1,23 @@
+{
+  "name": "stupid-ui",
+  "version": "1.0.0",
+  "description": "don't worry about it",
+  "main": "index.js",
+  "directories": {
+    "example": "example",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chatcher/stupid-ui.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chatcher/stupid-ui/issues"
+  },
+  "homepage": "https://github.com/chatcher/stupid-ui#readme"
+}
