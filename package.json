@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/chatcher/stupid-ui/issues"
   },
-  "homepage": "https://github.com/chatcher/stupid-ui#readme"
+  "homepage": "https://github.com/chatcher/stupid-ui#readme",
+  "dependencies": {
+    "express": "^4.17.2"
+  }
 }
