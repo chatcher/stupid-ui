@@ -32,7 +32,7 @@ const loadRoutes = async (rootPath, heirarchy = []) => {
 		} else if (/\.html$/.test(fileName)) {
 			const routeName = routePath.replace(/^\//, '');
 			routes[routePath] = {
-				file: path.join(routePath, fileName),
+				file: path.join('/routes', routePath, fileName),
 				path: routePath,
 				name: `${(routeName || 'root').replace(/\W/g, '-').toLowerCase()}-view`,
 			};
