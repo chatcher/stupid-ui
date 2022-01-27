@@ -10,11 +10,11 @@ const noThrow = async (method) => {
 	}
 };
 
-// const fileExists = async (filepath) => {
-// 	return await noThrow(async () => {
-// 		return (await fs.stat(filepath)).isFile();
-// 	});
-// };
+const fileExists = async (filepath) => {
+	return await noThrow(async () => {
+		return (await fs.stat(filepath)).isFile();
+	});
+};
 
 const directoryExists = async (filepath) => {
 	return await noThrow(async () => {
