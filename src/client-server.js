@@ -32,13 +32,18 @@ app.use(express.static('build'))
 app.get('*', async (req, res) => {
 	const url = req.url;
 
-console.debug({ url, cwd: process.cwd() });
+	const routeFilePath = path.join('build/routes', url);
+	console.debug({ url, cwd: process.cwd(), routeFilePath });
 
-	if (await directoryExists(`build/routes/${url}`)) {
-		console.debug('exists')
+	if (await directoryExists(routeFilePath)) {
+		console.debug('route dir exists', { url })
 	}
 
-	res.sendFile('build/engine/index.html', {
+	if (await fileExists(routeFilePath)) {
+		console.debug('route file exists', { url })
+	}
+
+	return res.sendFile('build/engine/index.html', {
 		root: process.cwd(),
 	});
 });
