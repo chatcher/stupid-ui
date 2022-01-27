@@ -46,22 +46,22 @@ class Router {
 	};
 
 	constructor() {
-		console.log(location.pathname);
-		console.log('router routes', this.routes);
+		console.log('Router::constructor()', {
+			'this.routes': this.routes,
+			'location.pathname': location.pathname,
+		});
 
-		const route = location.pathname;
-
-		console.log('router:', route)
+		const routePath = location.pathname;
 
 		document.querySelector('body').appendChild(this.routerView);
 
-		if (this.routes[route]) {
+		if (this.routes[routePath]) {
 			console.log('i know that route');
-		} else if (!/errors/.test(route)) {
+		} else if (!/errors/.test(routePath)) {
 			console.log('i dunno that route (goto 404)');
 			const newRoute = '/errors/404';
-			history.pushState({ oldRoute: route }, 'Not Found' , newRoute);
-			this.routeChange(newRoute, route);
+			history.pushState({ oldRoute: routePath }, 'Not Found' , newRoute);
+			this.routeChange(newRoute, routePath);
 		} else {
 			console.log('invalid error route')
 		}
