@@ -157,7 +157,7 @@ const copyFiles = async (src, dest, filter = () => true) => {
 		projectRoutesPath,
 		path.join(projectBuildPath, 'routes'),
 		(filePath) => {
-			const routeFile = filePath.replace(projectRoutesPath, '');
+			const routeFile = filePath.replace(projectRootPath, '');
 			const route = Object.values(routes)
 				.find((route) => routeFile === route.file);
 
