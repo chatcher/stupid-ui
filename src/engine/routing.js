@@ -2,8 +2,7 @@ import { defaultRoutes } from './default-routes.js';
 import { routes } from '../routes.js';
 import { loader } from './loader.js';
 
-console.log('client-side routing');
-console.log(routes);
+console.log('client-side routing', { routes });
 
 class StupidRouterView extends HTMLElement {
 	constructor() {
