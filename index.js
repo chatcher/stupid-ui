@@ -173,11 +173,7 @@ const copyFiles = async (src, dest, filter = () => true) => {
 	);
 
 	// import/run host
-
-
-
-
+	require('./src/client-server');
 
 	console.log('failed to explode');
-
 })();
