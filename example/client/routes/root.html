@@ -2,9 +2,13 @@
 	<h2>Root View</h2>
 
 	<some-component
+		some-boolean
+		some-static="static value"
 		@some-event="someMethod"
-		[some-data]="someData"
+		[some-dynamic]="someProp"
 	></some-component>
 
-	<a href="./some/page">Some Link</a>
+	<a href="/some/page">Internal Link</a>
+
+	<a href="example.com">External Link</a>
 </div>
