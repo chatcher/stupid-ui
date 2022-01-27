@@ -35,9 +35,9 @@ app.get('*', async (req, res) => {
 	const routeFilePath = path.join('build/routes', url);
 	console.debug({ url, cwd: process.cwd(), routeFilePath });
 
-	if (await directoryExists(routeFilePath)) {
-		console.debug('route dir exists', { url })
-	}
+	// if (await directoryExists(routeFilePath)) {
+	// 	console.debug('route dir exists', { url })
+	// }
 
 	if (await fileExists(routeFilePath)) {
 		console.debug('route file exists', { url })
