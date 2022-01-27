@@ -6,9 +6,9 @@ const stupidTemplateComponent = (templateId) =>
 			console.log('StupidComponent::constructor()', templateId);
 			this.innerText = 'Aye, Component!';
 			if (templateId) {
-	      this.innerHTML = document
-	      	.getElementById(templateId)
-	      	.innerHTML;
+				this.innerHTML = document
+					.getElementById(templateId)
+					.innerHTML;
 			}
 		}
 
