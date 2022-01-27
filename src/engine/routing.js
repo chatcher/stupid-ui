@@ -1,8 +1,8 @@
-import { defaultRoutes } from './default-routes.js';
-import { routes } from '../routes.js';
+import { routes as engineRoutes } from './routes.js';
+import { routes as projectRoutes } from '../routes.js';
 import { loader } from './loader.js';
 
-console.log('client-side routing', { routes });
+console.log('client-side routing', { engineRoutes, projectRoutes });
 
 class StupidRouterView extends HTMLElement {
 	constructor() {
@@ -41,8 +41,8 @@ customElements.define('stupid-router-view', StupidRouterView);
 class Router {
 	routerView = new StupidRouterView();
 	routes = {
-		...defaultRoutes,
-		...routes,
+		...engineRoutes,
+		...projectRoutes,
 	};
 
 	constructor() {
