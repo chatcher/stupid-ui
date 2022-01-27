@@ -1,14 +1,19 @@
 
-const stupidTemplateComponent = (templateId) =>
+const stupidTemplateComponent = (componentName, Controller) =>
 	class StupidComponent extends HTMLElement {
 		constructor() {
 			super();
-			console.log('StupidComponent::constructor()', templateId);
-			this.innerText = 'Aye, Component!';
-			if (templateId) {
-				this.innerHTML = document
-					.getElementById(templateId)
-					.innerHTML;
+			console.log('StupidComponent::constructor()', componentName);
+			this.innerHTML = document
+				.getElementById(componentName)
+				.innerHTML;
+			const anchors = this.querySelectorAll('a');
+			console.log(`StupidComponent<${componentName}>::constructor()`, { anchors });
+			const routerView = document.querySelector('stupid-router-view');
+			console.log({ routerView }, routerView.loadRoute);
+
+			if (Controller) {
+				this.controller = new Controller();
 			}
 		}
 
@@ -37,26 +42,29 @@ class Loader {
 		if (!this.promises[route.name]) {
 			this.promises[route.name] = new Promise(async (resolve, reject) => {
 				console.log('Loader::loadTemplate()', { route });
-				const response = await fetch(route.file);
-				console.log({ response });
 
-				if (!response.ok) {
-					return reject(response.statusText);
+				if (route.template) {
+					const templateResponse = await fetch(route.template);
+					if (templateResponse.ok) {
+						const template = document.createElement('template');
+						template.setAttribute('id', route.name);
+						template.innerHTML = await templateResponse.text();
+						document.querySelector('body').appendChild(template);
+					} else {
+						console.log('template', { templateResponse });
+					}
 				}
 
-				const template = await response.text();
+				const controller = route.controller ? await import(route.controller) : null;
 
-				const element = document.createElement('template');
-				element.setAttribute('id', route.name);
-				element.innerHTML = template;
-				document.querySelector('body').appendChild(element);
+				console.log({ controller });
 
 				customElements.define(
 					route.name,
-					stupidTemplateComponent(route.name),
+					stupidTemplateComponent(route.name, controller),
 				);
 
-				resolve(response.statusText);
+				resolve();
 			});
 		}
 

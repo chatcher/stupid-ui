@@ -19,23 +19,52 @@ const directoryExists = async (filepath) => {
 const loadRoutes = async (rootPath, heirarchy = []) => {
 	const routes = {};
 
-	const routePath = path.join('/', ...heirarchy);
-	const fullPath = path.join(rootPath, routePath);
+	const routeName = path.join('/', ...heirarchy);
+	const routePath = path.join('/routes', routeName);
+	const fullPath = path.join(rootPath, routeName);
 	const contents = await fs.readdir(fullPath);
-	console.debug('loadRoutes', { rootPath, routePath, fullPath, contents });
+	console.debug('loadRoutes', { rootPath, routeName, fullPath, contents });
 
 	await Promise.all(contents.map(async (fileName) => {
 		const filePath = path.join(fullPath, fileName);
 		console.debug({ filePath, fileName });
 		if (await directoryExists(filePath)) {
 			Object.assign(routes, await loadRoutes(rootPath, [...heirarchy, fileName]));
-		} else if (/\.html$/.test(fileName)) {
-			const routeName = routePath.replace(/^\//, '');
-			routes[routePath] = {
-				file: path.join('/routes', routePath, fileName),
-				path: routePath,
-				name: `${(routeName || 'root').replace(/\W/g, '-').toLowerCase()}-view`,
+		} else if (/\.(html|js)$/.test(fileName)) {
+			const baseFilePath = filePath.replace(/\.(html|js)$/, '');
+
+			const fileBaseName = fileName.replace(/\.(html|js)$/, '')
+
+			const viewNameBase = routeName.replace(/^\//, '').replace(/\W+/g, '-').toLowerCase();
+			const viewName = `${viewNameBase || 'root'}-view`;
+
+			const templatePath = `${baseFilePath}.html`;
+			const templateFile = path.join(routePath, `${fileBaseName}.html`);
+
+			const controllerPath = `${baseFilePath}.html`;
+			const controllerFile = path.join(routePath, `${fileBaseName}.js`);
+
+			const route = {
+				file: templateFile,
+
+				path: routeName,
+				name: viewName,
+				files: [],
 			};
+
+			route.template = await check(route, templatePath, templateFile);
+			route.controller = await check(route, controllerPath, controllerFile);
+
+			routes[routeName] = route;
+
+			async function check(route, filePath, fileName) {
+				console.debug({ filePath, fileName, cwd: process.cwd() })
+				if (await fileExists(filePath)) {
+					route.files.push(fileName)
+					return fileName;
+				}
+				return null;
+			}
 		}
 	}));
 
@@ -43,23 +72,20 @@ const loadRoutes = async (rootPath, heirarchy = []) => {
 };
 
 const copyFiles = async (src, dest, filter = () => true) => {
-	console.debug('copyFiles', { src, dest });
+	// console.debug('copyFiles', { src, dest });
 	if (await directoryExists(src)) {
 		const contents = await fs.readdir(src);
-		console.debug({ contents });
+		// console.debug({ contents });
 		await Promise.all(contents.map((fileName) =>
-			// const filePath =
 			copyFiles(
 				path.join(src, fileName),
 				path.join(dest, fileName),
 				filter,
 			)
-			// console.debug({ filePath, fileName });
-			// copyFiles(filepath)
 		));
 	} else if (await fileExists(src)) {
 		const shouldCopy = filter(src);
-		console.debug({ shouldCopy, src });
+		// console.debug({ shouldCopy, src });
 		if(shouldCopy) {
 			await fs.mkdir(path.dirname(dest), { recursive: true });
 			await fs.copyFile(src, dest);
@@ -159,9 +185,9 @@ const copyFiles = async (src, dest, filter = () => true) => {
 		(filePath) => {
 			const routeFile = filePath.replace(projectRootPath, '');
 			const route = Object.values(routes)
-				.find((route) => routeFile === route.file);
+				.find((route) => route.files.includes(routeFile));
 
-			console.debug('filter', { filePath, routeFile, route });
+			// console.debug('filter', { filePath, routeFile, route });
 			return route;
 		}
 	);
