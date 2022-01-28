@@ -1,11 +1,21 @@
 
-const stupidTemplateComponent = (componentName, Controller) =>
-	class StupidComponent extends HTMLElement {
+const stupidTemplateComponent = (route, controllerModule) => {
+	const {
+		name: componentName,
+	} = route;
+
+	const controllerName = `${componentName.replace(
+		/(?:\b|\W)(\w)/g,
+		(_, letter) => letter.toUpperCase()
+	)}Controller`;
+	const Controller = controllerModule ? controllerModule[controllerName] : null;
+
+	return class StupidComponent extends HTMLElement {
 		constructor() {
 			super();
 			console.log('StupidComponent::constructor()', componentName);
 			this.innerHTML = document
-				.getElementById(componentName)
+				.getElementById(`${componentName}-template`)
 				.innerHTML;
 			const anchors = this.querySelectorAll('a');
 			console.log(`StupidComponent<${componentName}>::constructor()`, { anchors });
@@ -13,7 +23,7 @@ const stupidTemplateComponent = (componentName, Controller) =>
 			console.log({ routerView }, routerView.loadRoute);
 
 			if (Controller) {
-				this.controller = new Controller();
+				this.controller = new Controller(this);
 			}
 		}
 
@@ -33,6 +43,7 @@ const stupidTemplateComponent = (componentName, Controller) =>
 			console.log('StupidComponent::adopted()');
 		}
 	};
+};
 
 class Loader {
 	promises = {};
@@ -47,7 +58,7 @@ class Loader {
 					const templateResponse = await fetch(route.template);
 					if (templateResponse.ok) {
 						const template = document.createElement('template');
-						template.setAttribute('id', route.name);
+						template.setAttribute('id', `${route.name}-template`);
 						template.innerHTML = await templateResponse.text();
 						document.querySelector('body').appendChild(template);
 					} else {
@@ -61,7 +72,7 @@ class Loader {
 
 				customElements.define(
 					route.name,
-					stupidTemplateComponent(route.name, controller),
+					stupidTemplateComponent(route, controller),
 				);
 
 				resolve();
