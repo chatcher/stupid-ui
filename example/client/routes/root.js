@@ -1,5 +1,3 @@
-import '../components/some-component/some-component.js';
-
 export class RootViewController {
 	someProp = 'RootViewController.someProp';
 
