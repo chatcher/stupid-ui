@@ -1,3 +1,7 @@
+import { components } from '../components.js';
+
+console.log({ components });
+
 const stupidTemplateComponent = (route, controllerModule) => {
 	const {
 		name: componentName,
@@ -47,12 +51,49 @@ const stupidTemplateComponent = (route, controllerModule) => {
 class Loader {
 	promises = {};
 
+	constructor(components) {
+		Object.values(components).forEach((component) => {
+			this.loadComponentTemplate(component);
+		});
+	}
+
+	async loadComponentTemplate(component) {
+		console.log('Loader::loadcomponentTemplate()', { component });
+		if (!this.promises[component.name]) {
+			this.promises[component.name] = new Promise(async (resolve, reject) => {
+				if (component.template) {
+					const templateResponse = await fetch(component.template);
+					if (templateResponse.ok) {
+						const template = document.createElement('template');
+						template.setAttribute('id', `${component.name}-template`);
+						template.innerHTML = await templateResponse.text();
+						document.querySelector('body').appendChild(template);
+					} else {
+						console.error('template', { templateResponse });
+					}
+				}
+
+				const controller = component.controller ? await import (component.controller) : null;
+
+				console.log({ controller });
+
+				customElements.define(
+					component.name,
+					stupidTemplateComponent(component, controller),
+				);
+
+				resolve();
+			});
+		}
+
+		return this.promises[component.name];
+	}
+
 	async loadRouteTemplate(route) {
+		console.log('Loader::loadRouteTemplate()', { route });
 		if (!route) throw new Error('loadRouteTemplate() no route');
 		if (!this.promises[route.name]) {
 			this.promises[route.name] = new Promise(async (resolve, reject) => {
-				console.log('Loader::loadRouteTemplate()', { route });
-
 				if (route.template) {
 					const templateResponse = await fetch(route.template);
 					if (templateResponse.ok) {
@@ -61,7 +102,7 @@ class Loader {
 						template.innerHTML = await templateResponse.text();
 						document.querySelector('body').appendChild(template);
 					} else {
-						console.log('template', { templateResponse });
+						console.error('template', { templateResponse });
 					}
 				}
 
@@ -82,4 +123,4 @@ class Loader {
 	}
 }
 
-export const loader = new Loader();
+export const loader = new Loader(components);
