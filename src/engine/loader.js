@@ -37,11 +37,11 @@ const stupidTemplateComponent = (componentName, Controller) =>
 class Loader {
 	promises = {};
 
-	async loadTemplate(route) {
-		if (!route) throw new Error('loadTemplate() no route');
+	async loadRouteTemplate(route) {
+		if (!route) throw new Error('loadRouteTemplate() no route');
 		if (!this.promises[route.name]) {
 			this.promises[route.name] = new Promise(async (resolve, reject) => {
-				console.log('Loader::loadTemplate()', { route });
+				console.log('Loader::loadRouteTemplate()', { route });
 
 				if (route.template) {
 					const templateResponse = await fetch(route.template);

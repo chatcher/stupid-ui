@@ -31,7 +31,7 @@ class StupidRouterView extends HTMLElement {
 		console.log({ route });
 		if (!route) throw new Error('Cannot load empty route');
 		if (!route.name) throw new Error('Cannot load unnamed route');
-		await loader.loadTemplate(route);
+		await loader.loadRouteTemplate(route);
 		this.innerHTML = `<${route.name} />`;
 	}
 }
