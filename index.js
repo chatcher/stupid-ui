@@ -45,8 +45,6 @@ const loadRoutes = async (rootPath, heirarchy = []) => {
 			const controllerFile = path.join(routePath, `${fileBaseName}.js`);
 
 			const route = {
-				file: templateFile,
-
 				path: routeName,
 				name,
 				files: [],
