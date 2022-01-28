@@ -35,8 +35,8 @@ const loadRoutes = async (rootPath, heirarchy = []) => {
 
 			const fileBaseName = fileName.replace(/\.(html|js)$/, '')
 
-			const viewNameBase = routeName.replace(/^\//, '').replace(/\W+/g, '-').toLowerCase();
-			const viewName = `${viewNameBase || 'root'}-view`;
+			const baseName = routeName.replace(/^\//, '').replace(/\W+/g, '-').toLowerCase();
+			const name = `${baseName || 'root'}-view`;
 
 			const templatePath = `${baseFilePath}.html`;
 			const templateFile = path.join(routePath, `${fileBaseName}.html`);
@@ -48,7 +48,7 @@ const loadRoutes = async (rootPath, heirarchy = []) => {
 				file: templateFile,
 
 				path: routeName,
-				name: viewName,
+				name,
 				files: [],
 			};
 
@@ -69,6 +69,63 @@ const loadRoutes = async (rootPath, heirarchy = []) => {
 	}));
 
 	return routes;
+};
+
+const loadComponents = async (rootPath, heirarchy = []) => {
+	const components = {};
+
+	const componentName = path.join(...heirarchy);
+	const componentPath = path.join('/components', componentName);
+	const fullPath = path.join(rootPath, componentName);
+	const contents = await fs.readdir(fullPath);
+	console.debug('loadComponents', { rootPath, componentName, fullPath, contents });
+
+
+	await Promise.all(contents.map(async (fileName) => {
+		const filePath = path.join(fullPath, fileName);
+		console.debug({ filePath, fileName });
+		if (await directoryExists(filePath)) {
+			Object.assign(components, await loadComponents(rootPath, [...heirarchy, fileName]));
+		} else if (/\.(html|js)$/.test(fileName)) {
+			const baseFilePath = filePath.replace(/\.(html|js)$/, '');
+
+			const fileBaseName = fileName.replace(/\.(html|js)$/, '')
+
+			const name = componentName.replace(/^\//, '').replace(/\W+/g, '-').toLowerCase();
+
+			const templatePath = `${baseFilePath}.html`;
+			const templateFile = path.join(componentPath, `${fileBaseName}.html`);
+
+			const controllerPath = `${baseFilePath}.html`;
+			const controllerFile = path.join(componentPath, `${fileBaseName}.js`);
+
+			const component = {
+				name,
+				files: [],
+			};
+
+			component.template = await check(component, templatePath, templateFile);
+			component.controller = await check(component, controllerPath, controllerFile);
+
+			components[componentName] = component;
+
+			async function check(component, filePath, fileName) {
+				console.debug({ filePath, fileName, cwd: process.cwd() })
+				if (await fileExists(filePath)) {
+					component.files.push(fileName)
+					return fileName;
+				}
+				return null;
+			}
+		}
+	}));
+
+
+	// 'name' to identify it
+	// 'template' to fetch
+	// 'controller' to import
+
+	return components;
 };
 
 const copyFiles = async (src, dest, filter = () => true) => {
@@ -194,6 +251,13 @@ const copyFiles = async (src, dest, filter = () => true) => {
 
 	// copy components
 	const projectComponentsPath = path.join(projectRootPath, 'components');
+	const components = await loadComponents(projectComponentsPath);
+	console.debug({ components });
+
+	await fs.writeFile(
+		path.join(projectBuildPath, 'components.js'),
+		`export const components = ${JSON.stringify(components, null, 2)};\n`,
+	);
 	await copyFiles(
 		projectComponentsPath,
 		path.join(projectBuildPath, 'components'),

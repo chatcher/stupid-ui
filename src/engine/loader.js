@@ -1,4 +1,3 @@
-
 const stupidTemplateComponent = (route, controllerModule) => {
 	const {
 		name: componentName,
