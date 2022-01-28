@@ -192,6 +192,13 @@ const copyFiles = async (src, dest, filter = () => true) => {
 		}
 	);
 
+	// copy components
+	const projectComponentsPath = path.join(projectRootPath, 'components');
+	await copyFiles(
+		projectComponentsPath,
+		path.join(projectBuildPath, 'components'),
+	);
+
 	// copy engine files
 	await copyFiles(
 		path.join(__dirname, 'src', 'engine'),
