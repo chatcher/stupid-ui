@@ -57,15 +57,16 @@ class Loader {
 		});
 	}
 
-	async loadComponentTemplate(component) {
-		console.log('Loader::loadcomponentTemplate()', { component });
-		if (!this.promises[component.name]) {
-			this.promises[component.name] = new Promise(async (resolve, reject) => {
-				if (component.template) {
-					const templateResponse = await fetch(component.template);
+	async loadTemplate(context) {
+		console.log('Loader::loadTemplate()', { context });
+
+		if (!this.promises[context.name]) {
+			this.promises[context.name] = new Promise(async (resolve, reject) => {
+				if (context.template) {
+					const templateResponse = await fetch(context.template);
 					if (templateResponse.ok) {
 						const template = document.createElement('template');
-						template.setAttribute('id', `${component.name}-template`);
+						template.setAttribute('id', `${context.name}-template`);
 						template.innerHTML = await templateResponse.text();
 						document.querySelector('body').appendChild(template);
 					} else {
@@ -73,53 +74,28 @@ class Loader {
 					}
 				}
 
-				const controller = component.controller ? await import (component.controller) : null;
+				const controller = context.controller ? await import (context.controller) : null;
 
 				console.log({ controller });
 
 				customElements.define(
-					component.name,
-					stupidTemplateComponent(component, controller),
+					context.name,
+					stupidTemplateComponent(context, controller),
 				);
 
 				resolve();
 			});
 		}
 
-		return this.promises[component.name];
+		return this.promises[context.name];
 	}
 
-	async loadRouteTemplate(route) {
-		console.log('Loader::loadRouteTemplate()', { route });
-		if (!route) throw new Error('loadRouteTemplate() no route');
-		if (!this.promises[route.name]) {
-			this.promises[route.name] = new Promise(async (resolve, reject) => {
-				if (route.template) {
-					const templateResponse = await fetch(route.template);
-					if (templateResponse.ok) {
-						const template = document.createElement('template');
-						template.setAttribute('id', `${route.name}-template`);
-						template.innerHTML = await templateResponse.text();
-						document.querySelector('body').appendChild(template);
-					} else {
-						console.error('template', { templateResponse });
-					}
-				}
+	loadComponentTemplate(component) {
+		return this.loadTemplate(component);
+	}
 
-				const controller = route.controller ? await import(route.controller) : null;
-
-				console.log({ controller });
-
-				customElements.define(
-					route.name,
-					stupidTemplateComponent(route, controller),
-				);
-
-				resolve();
-			});
-		}
-
-		return this.promises[route.name];
+	loadRouteTemplate(route) {
+		return this.loadTemplate(route);
 	}
 }
 
