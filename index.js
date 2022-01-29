@@ -118,11 +118,6 @@ const loadComponents = async (rootPath, heirarchy = []) => {
 		}
 	}));
 
-
-	// 'name' to identify it
-	// 'template' to fetch
-	// 'controller' to import
-
 	return components;
 };
 
