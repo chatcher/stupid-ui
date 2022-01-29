@@ -1,9 +1,24 @@
 import { routes as engineRoutes } from './routes.js';
 import { routes as projectRoutes } from '../routes.js';
 import { loader } from './loader.js';
-import { StupidRouterView } from './components.js';
 
 console.log('client-side routing', { engineRoutes, projectRoutes });
+
+export class StupidRouterView extends HTMLElement {
+	constructor() {
+		super();
+		console.log('StupidRouterView::constructor()');
+		this.innerHTML = `<p>Loading...</p>`;
+	}
+
+	async loadRoute(context) {
+		console.log({ context });
+		if (!context) throw new Error('Cannot load empty route');
+		if (!context.name) throw new Error('Cannot load unnamed route');
+		this.innerHTML = `<${context.name} />`;
+		await loader.loadRouteTemplate(context);
+	}
+}
 
 customElements.define('stupid-router-view', StupidRouterView);
 
