@@ -120,7 +120,7 @@ class Loader {
 		console.log('Loader::loadRouteTemplate()', { context });
 
 		if (!this.promises[context.name]) {
-			this.promises[context.name] = new Promise(async (resolve) => {
+			this.promises[context.name] = (async () => {
 				if (context.template) {
 					const templateResponse = await fetch(context.template);
 					if (templateResponse.ok) {
@@ -141,9 +141,7 @@ class Loader {
 					context.name,
 					stupidTemplateComponent(context, controller),
 				);
-
-				resolve();
-			});
+			})();
 		}
 
 		return this.promises[context.name];
