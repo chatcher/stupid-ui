@@ -1,8 +1,7 @@
 const fs = require('fs/promises');
 const path = require('path');
-const util = require('util');
 
-const noThrow = async (method) => { try { return await method() } catch (_) {} };
+const noThrow = async (method) => { try { return await method() } catch (_) {/* empty */} };
 
 const fileExists = async (filepath) => {
 	return await noThrow(async () => {
@@ -33,7 +32,7 @@ const loadRoutes = async (rootPath, heirarchy = []) => {
 		} else if (/\.(html|js)$/.test(fileName)) {
 			const baseFilePath = filePath.replace(/\.(html|js)$/, '');
 
-			const fileBaseName = fileName.replace(/\.(html|js)$/, '')
+			const fileBaseName = fileName.replace(/\.(html|js)$/, '');
 
 			const baseName = routeName.replace(/^\//, '').replace(/\W+/g, '-').toLowerCase();
 			const name = `${baseName || 'root'}-view`;
@@ -55,14 +54,6 @@ const loadRoutes = async (rootPath, heirarchy = []) => {
 
 			routes[routeName] = route;
 
-			async function check(route, filePath, fileName) {
-				console.debug({ filePath, fileName, cwd: process.cwd() })
-				if (await fileExists(filePath)) {
-					route.files.push(fileName)
-					return fileName;
-				}
-				return null;
-			}
 		}
 	}));
 
@@ -87,7 +78,7 @@ const loadComponents = async (rootPath, heirarchy = []) => {
 		} else if (/\.(html|js)$/.test(fileName)) {
 			const baseFilePath = filePath.replace(/\.(html|js)$/, '');
 
-			const fileBaseName = fileName.replace(/\.(html|js)$/, '')
+			const fileBaseName = fileName.replace(/\.(html|js)$/, '');
 
 			const name = componentName.replace(/^\//, '').replace(/\W+/g, '-').toLowerCase();
 
@@ -106,20 +97,20 @@ const loadComponents = async (rootPath, heirarchy = []) => {
 			component.controller = await check(component, controllerPath, controllerFile);
 
 			components[componentName] = component;
-
-			async function check(component, filePath, fileName) {
-				console.debug({ filePath, fileName, cwd: process.cwd() })
-				if (await fileExists(filePath)) {
-					component.files.push(fileName)
-					return fileName;
-				}
-				return null;
-			}
 		}
 	}));
 
 	return components;
 };
+
+async function check(context, filePath, fileName) {
+	console.debug({ filePath, fileName, cwd: process.cwd() });
+	if (await fileExists(filePath)) {
+		context.files.push(fileName);
+		return fileName;
+	}
+	return null;
+}
 
 const copyFiles = async (src, dest, filter = () => true) => {
 	// console.debug('copyFiles', { src, dest });
