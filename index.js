@@ -292,7 +292,7 @@ async function copyEngine({
 	projectBuildPath,
 }) {
 	await copyFiles(
-		path.join(__dirname, 'src', 'engine'),
+		path.join(__dirname, 'engine'),
 		path.join(projectBuildPath, 'engine'),
 	);
 }
