@@ -45,7 +45,7 @@ export const setupStupidComponentAutoloader = async (context) => {
 	const template = await loadTemplate(context);
 	const Controller = await loadController(context);
 
-	class StupidComponentAutoloader extends HTMLElement {
+	class StupidComponent extends HTMLElement {
 		constructor() {
 			super();
 			console.log('StupidComponentAutoloader::constructor()', { context });
@@ -56,6 +56,6 @@ export const setupStupidComponentAutoloader = async (context) => {
 
 	customElements.define(
 		context.name,
-		StupidComponentAutoloader,
+		StupidComponent,
 	);
 };
