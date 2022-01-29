@@ -16,18 +16,12 @@ const fileExists = async (filepath) => {
 	});
 };
 
-const directoryExists = async (filepath) => {
-	return await noThrow(async () => {
-		return (await fs.stat(filepath)).isDirectory();
-	});
-};
-
 const app = express();
 const port = 3000;
 
 console.debug('client-server', { cwd: process.cwd() });
 
-app.use(express.static('build'))
+app.use(express.static('build'));
 
 app.get('*', async (req, res) => {
 	const url = req.url;
@@ -40,7 +34,7 @@ app.get('*', async (req, res) => {
 	// }
 
 	if (await fileExists(routeFilePath)) {
-		console.debug('route file exists', { url })
+		console.debug('route file exists', { url });
 	}
 
 	return res.sendFile('build/engine/index.html', {
