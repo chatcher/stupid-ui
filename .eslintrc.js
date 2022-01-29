@@ -5,11 +5,7 @@ module.exports = {
 		'commonjs': true,
 		'es2021': true,
 	},
-	'globals': {
-		// 'process': true,
-	},
 	'extends': [
-		// 'eslint:recommended',
 		'xo',
 	],
 	'parserOptions': {
@@ -24,7 +20,6 @@ module.exports = {
 		'capitalized-comments': 'off',
 		'comma-dangle': [
 			'error',
-			// 'always',
 		  {
         'arrays': 'never',
         'objects': 'always-multiline',
@@ -33,24 +28,12 @@ module.exports = {
         'functions': 'ignore',
     	}
     ],
-		'indent': [
-			'error',
-			'tab',
-		],
-		'linebreak-style': [
-			'error',
-			'unix',
-		],
 		'object-curly-spacing': [
 			'error',
 			'always',
 		],
 		'padding-line-between-statements': [
 			'off',
-		],
-		'quotes': [
-			'error',
-			'single',
 		],
 		'semi': [
 			'error',
