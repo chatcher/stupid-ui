@@ -53,19 +53,14 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 			this.controller = Controller ? new Controller(this) : null;
 
 			const anchors = this.querySelectorAll('a');
-			console.log(`StupidComponent<${context.name}>::constructor()`, { anchors });
 			Array.from(anchors).forEach((anchor) => {
 				const href = anchor.getAttribute('href')
 				if (router.routes[href]) {
-					console.log('hey, yeah!');
 					anchor.addEventListener('click', (event) => {
-						console.log({ event });
 						event.preventDefault();
+						router.changeRoute(href);
 					});
-				} else {
-					console.log('hmm, nope.');
 				}
-				// console.log(anchor.getAttribute('href'));
 			});
 		}
 	}

@@ -40,20 +40,23 @@ class Router {
 
 		if (this.routes[routePath]) {
 			console.log('i know that route');
+			this.updateRoute();
 		} else if (!/errors/.test(routePath)) {
 			console.log('i dunno that route (goto 404)');
-			const newRoute = '/errors/404';
-			history.pushState({ oldRoute: routePath }, 'Not Found' , newRoute);
-			this.routeChange(newRoute, routePath);
+			this.changeRoute('/errors/404');
 		} else {
 			console.log('invalid error route');
 		}
 
-		this.updateRoute();
+		window.addEventListener('popstate', (event) => {
+			this.updateRoute();
+		});
 	}
 
-	routeChange(newRoute, oldRoute) {
-		console.log('new route:', this.routes[newRoute]);
+	changeRoute(newRoute) {
+		const oldRoute = location.pathname;
+		history.pushState({ oldRoute: oldRoute }, 'Loading...' , newRoute);
+		this.updateRoute();
 	}
 
 	updateRoute() {
