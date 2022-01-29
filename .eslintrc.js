@@ -1,12 +1,16 @@
 module.exports = {
 	'env': {
-		'browser': true,
+		'node': true,
+		'browser': false,
 		'commonjs': true,
 		'es2021': true,
 	},
+	'globals': {
+		// 'process': true,
+	},
 	'extends': [
 		'eslint:recommended',
-		'xo',
+		// 'xo',
 	],
 	'parserOptions': {
 		'ecmaVersion': 'latest',
@@ -14,19 +18,22 @@ module.exports = {
 	'rules': {
 		'indent': [
 			'error',
-			'tab'
+			'tab',
 		],
 		'linebreak-style': [
 			'error',
-			'unix'
+			'unix',
 		],
 		'quotes': [
 			'error',
-			'single'
+			'single',
 		],
 		'semi': [
 			'error',
-			'always'
-		]
+			'always',
+			{
+				'omitLastInOneLineBlock': true,
+			},
+		],
 	},
 };
