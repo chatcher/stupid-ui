@@ -1,7 +1,7 @@
 import { components } from '../components.js';
-import { stupidTemplateComponent, setupStupidComponentAutoloader } from './components.js'
+import { setupStupidComponentAutoloader } from './components.js'
 
-console.log({ components, stupidTemplateComponent, setupStupidComponentAutoloader });
+console.log({ components, setupStupidComponentAutoloader });
 
 class Loader {
 	promises = {};

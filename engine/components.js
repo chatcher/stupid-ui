@@ -12,36 +12,6 @@
 // 	adoptedCallback() {}
 // }
 
-export const stupidTemplateComponent = (route, controllerModule) => {
-	const {
-		name: componentName,
-	} = route;
-
-	const controllerName = `${componentName.replace(
-		/(?:\b|\W)(\w)/g,
-		(_, letter) => letter.toUpperCase()
-	)}Controller`;
-	const Controller = controllerModule ? controllerModule[controllerName] : null;
-
-	return class StupidComponent extends HTMLElement {
-		constructor() {
-			super();
-			console.log('StupidComponent::constructor()', componentName);
-			this.innerHTML = document
-				.getElementById(`${componentName}-template`)
-				.innerHTML;
-			const anchors = this.querySelectorAll('a');
-			console.log(`StupidComponent<${componentName}>::constructor()`, { anchors });
-			const routerView = document.querySelector('stupid-router-view');
-			console.log({ routerView }, routerView.loadRoute);
-
-			if (Controller) {
-				this.controller = new Controller(this);
-			}
-		}
-	};
-};
-
 export const setupStupidComponentAutoloader = (context) => {
 	class StupidComponentAutoloader extends HTMLElement {
 		context = context;
