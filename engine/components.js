@@ -32,15 +32,18 @@ const loadTemplate = async (context) => {
 		}</pre>`;
 };
 
-export const setupStupidComponentAutoloader = async (context) => {
-	const template = await loadTemplate(context);
-
+const loadController = async (context) => {
 	const controllerModule = context.controller ? await import(context.controller) : null;
 	const controllerClassName = `${context.name.replace(
 		/(?:\b|\W)(\w)/g,
 		(_, letter) => letter.toUpperCase()
 	)}Controller`;
-	const Controller = controllerModule ? controllerModule[controllerClassName] : null;
+	return controllerModule ? controllerModule[controllerClassName] : null;
+};
+
+export const setupStupidComponentAutoloader = async (context) => {
+	const template = await loadTemplate(context);
+	const Controller = await loadController(context);
 
 	class StupidComponentAutoloader extends HTMLElement {
 		constructor() {
