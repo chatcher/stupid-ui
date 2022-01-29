@@ -63,7 +63,7 @@ class Router {
 			history.pushState({ oldRoute: routePath }, 'Not Found' , newRoute);
 			this.routeChange(newRoute, routePath);
 		} else {
-			console.log('invalid error route')
+			console.log('invalid error route');
 		}
 
 		this.updateRoute();
@@ -75,9 +75,9 @@ class Router {
 
 	updateRoute() {
 		console.log('updateRouteView');
-		const route = this.routes[location.pathname]
+		const route = this.routes[location.pathname];
 		this.routerView.loadRoute(route);
 	}
 }
 
-const router = new Router();
+export const router = new Router();

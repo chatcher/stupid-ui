@@ -83,12 +83,12 @@ const setupStupidComponentAutoloader = (context) => {
 				} else {
 					this.innerHTML = `<pre>Error: ${
 						JSON.stringify(templateResponse, null, 2)
-							.replace(/[<>&"']/g, ch => ({
-								'<' : '&lt;',
-								'>' : '&gt;',
-								'&' : '&amp;',
-								'"' : '&quot;',
-								"'" : '&apos;',
+							.replace(/[<>&"']/g, (ch) => ({
+								'<': '&lt;',
+								'>': '&gt;',
+								'&': '&amp;',
+								'"': '&quot;',
+								'\'': '&apos;',
 							}[ch]))}</pre>`;
 					console.error('fetch template', { context, templateResponse });
 				}
@@ -120,7 +120,7 @@ class Loader {
 		console.log('Loader::loadRouteTemplate()', { context });
 
 		if (!this.promises[context.name]) {
-			this.promises[context.name] = new Promise(async (resolve, reject) => {
+			this.promises[context.name] = new Promise(async (resolve) => {
 				if (context.template) {
 					const templateResponse = await fetch(context.template);
 					if (templateResponse.ok) {
@@ -133,7 +133,7 @@ class Loader {
 					}
 				}
 
-				const controller = context.controller ? await import (context.controller) : null;
+				const controller = context.controller ? await import(context.controller) : null;
 
 				console.log({ controller });
 
