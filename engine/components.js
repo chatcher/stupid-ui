@@ -12,7 +12,7 @@
 // 	adoptedCallback() {}
 // }
 
-export const setupStupidComponentAutoloader = (context) => {
+export const setupStupidComponentAutoloader = async (context) => {
 	class StupidComponentAutoloader extends HTMLElement {
 		context = context;
 		module = null;

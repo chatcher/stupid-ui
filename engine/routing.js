@@ -14,7 +14,7 @@ export class StupidRouterView extends HTMLElement {
 		if (!context) throw new Error('Cannot load empty route');
 		if (!context.name) throw new Error('Cannot load unnamed route');
 		this.innerHTML = `<${context.name} />`;
-		setupStupidComponentAutoloader(context);
+		return setupStupidComponentAutoloader(context);
 	}
 }
 
