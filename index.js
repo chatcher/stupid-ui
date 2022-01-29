@@ -1,16 +1,20 @@
 const fs = require('fs/promises');
 const path = require('path');
 
-const noThrow = async (method) => { try { return await method() } catch (_) {/* empty */} };
+const noThrow = async (method) => {
+	try {
+		return await method();
+	} catch (_) {}
+};
 
-const fileExists = async (filepath) => {
-	return await noThrow(async () => {
+const fileExists = (filepath) => {
+	return noThrow(async () => {
 		return (await fs.stat(filepath)).isFile();
 	});
 };
 
-const directoryExists = async (filepath) => {
-	return await noThrow(async () => {
+const directoryExists = (filepath) => {
+	return noThrow(async () => {
 		return (await fs.stat(filepath)).isDirectory();
 	});
 };
@@ -53,7 +57,6 @@ const loadRoutes = async (rootPath, heirarchy = []) => {
 			route.controller = await check(route, controllerPath, controllerFile);
 
 			routes[routeName] = route;
-
 		}
 	}));
 
@@ -68,7 +71,6 @@ const loadComponents = async (rootPath, heirarchy = []) => {
 	const fullPath = path.join(rootPath, componentName);
 	const contents = await fs.readdir(fullPath);
 	console.debug('loadComponents', { rootPath, componentName, fullPath, contents });
-
 
 	await Promise.all(contents.map(async (fileName) => {
 		const filePath = path.join(fullPath, fileName);
@@ -127,7 +129,7 @@ const copyFiles = async (src, dest, filter = () => true) => {
 	} else if (await fileExists(src)) {
 		const shouldCopy = filter(src);
 		// console.debug({ shouldCopy, src });
-		if(shouldCopy) {
+		if (shouldCopy) {
 			await fs.mkdir(path.dirname(dest), { recursive: true });
 			await fs.copyFile(src, dest);
 		}

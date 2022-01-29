@@ -5,13 +5,11 @@ const path = require('path');
 const noThrow = async (method) => {
 	try {
 		return await method();
-	} catch (error) {
-		// console.error(error)
-	}
+	} catch (_) {}
 };
 
-const fileExists = async (filepath) => {
-	return await noThrow(async () => {
+const fileExists = (filepath) => {
+	return noThrow(async () => {
 		return (await fs.stat(filepath)).isFile();
 	});
 };
@@ -24,7 +22,7 @@ console.debug('client-server', { cwd: process.cwd() });
 app.use(express.static('build'));
 
 app.get('*', async (req, res) => {
-	const url = req.url;
+	const { url } = req;
 
 	const routeFilePath = path.join('build/routes', url);
 	console.debug({ url, cwd: process.cwd(), routeFilePath });
