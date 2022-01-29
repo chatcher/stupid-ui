@@ -146,63 +146,96 @@ const copyFiles = async (src, dest, filter = () => true) => {
 (async () => {
 	const args = Array.from(process.argv).slice(2);
 
+	const projectDirectory = await findProjectDirectory(args);
+	console.debug({ projectDirectory });
+
+	const projectConfig = await loadProjectConfig();
+	console.debug({ projectConfig });
+
+	const {
+		projectRoutesPath,
+		projectRootPath,
+		projectComponentsPath,
+	} = await loadProjectPaths(projectConfig);
+
+	const projectBuildPath = await resetBuildTarget();
+
+	await copyRoutes({
+		projectRoutesPath,
+		projectBuildPath,
+		projectRootPath,
+	});
+
+	await copyComponents({
+		projectComponentsPath,
+		projectBuildPath,
+	});
+
+	await copyEngine({
+		projectBuildPath,
+	});
+
+	// import/run host
+	require('./src/client-server');
+
+	console.debug('failed to explode');
+})();
+
+async function findProjectDirectory(args) {
 	if (!args.length) {
 		console.error('Project directory required.');
 		process.exit();
 	}
 
-	const projectDirectory = await (async (args) => {
-		const promises = args.map(async (filepath) =>
-			await fileExists(path.join(filepath, 'stupid-ui.json')) ? filepath : null
-		);
-		const directories = (await Promise.all(promises)).filter(Boolean);
-		console.debug({ directories });
-		if (!directories.length) {
-			console.error('Project directory required.');
-			process.exit();
-		} else if (directories.length > 1) {
-			console.error('Too many candidate directories.');
-			process.exit();
-		}
-		return directories[0];
-	})(args);
-	console.debug({ projectDirectory });
+	const promises = args.map(async (filepath) =>
+		await fileExists(path.join(filepath, 'stupid-ui.json')) ? filepath : null
+	);
+	const directories = (await Promise.all(promises)).filter(Boolean);
+	console.debug({ directories });
+	if (!directories.length) {
+		console.error('Project directory required.');
+		process.exit();
+	} else if (directories.length > 1) {
+		console.error('Too many candidate directories.');
+		process.exit();
+	}
+	const projectDirectory = directories[0];
 	if (!(await directoryExists(projectDirectory))) {
 		console.error('Directory not found:', projectDirectory);
 		process.exit();
 	}
 	process.chdir(projectDirectory);
+	return projectDirectory;
+}
 
-	const projectConfig = await (async () => {
-		const projectFile = 'stupid-ui.json';
-		const fileContents = await fs.readFile(projectFile);
-		console.debug({ fileContents: fileContents.toString() });
-		const projectConfig = await noThrow(() => JSON.parse(fileContents));
-		if (!projectConfig) {
-			console.error('Project file should be valid JSON.');
-			process.exit();
-		} else if (!projectConfig.root) {
-			console.error('Project file should indicate a client directory on `.root`.');
-			process.exit();
-		}
-		return projectConfig;
-	})();
-	console.debug({ projectConfig });
+async function loadProjectConfig() {
+	const projectFile = 'stupid-ui.json';
+	const fileContents = await fs.readFile(projectFile);
+	console.debug({ fileContents: fileContents.toString() });
+	const projectConfig = await noThrow(() => JSON.parse(fileContents));
+	if (!projectConfig) {
+		console.error('Project file should be valid JSON.');
+		process.exit();
+	} else if (!projectConfig.root) {
+		console.error('Project file should indicate a client directory on `.root`.');
+		process.exit();
+	}
+	return projectConfig;
+}
 
+async function loadProjectPaths(projectConfig) {
 	const unsafeProjectRootOption = projectConfig.root;
 	const projectRootPath = `${path.normalize(unsafeProjectRootOption)}/`
 		.replace(/^(\.\.\/)+/g, '')
 		.replace(/^\/+|\/+$/g, '') || '.';
-	console.debug({ projectRootPath });
+	const projectRoutesPath = path.join(projectRootPath, 'routes');
+	const projectComponentsPath = path.join(projectRootPath, 'components');
+	console.debug({ projectRootPath, projectRoutesPath, projectComponentsPath });
 
 	if (!(await directoryExists(projectRootPath))) {
 		console.error('Not valid entry point:', projectRootPath);
 		process.exit();
 	}
-
-	const projectRoutesPath = path.join(projectRootPath, 'routes');
-	console.debug({ projectRoutesPath });
-
 	if (!(await directoryExists(projectRoutesPath))) {
 		console.error('No routes:', projectRoutesPath);
 		process.exit();
@@ -212,19 +245,30 @@ const copyFiles = async (src, dest, filter = () => true) => {
 		process.exit();
 	}
 
+	return {
+		projectRoutesPath,
+		projectRootPath,
+		projectComponentsPath,
+	};
+}
+
+async function resetBuildTarget() {
 	const projectBuildPath = 'build';
 	console.debug({ cwd: process.cwd(), projectBuildPath });
-
 	if (await directoryExists(projectBuildPath)) {
 		await fs.rmdir(projectBuildPath, { recursive: true });
 	}
 	fs.mkdir(projectBuildPath, { recursive: true });
+	return projectBuildPath;
+}
 
-	// load routes
+async function copyRoutes({
+	projectRoutesPath,
+	projectBuildPath,
+	projectRootPath,
+}) {
 	const routes = await loadRoutes(projectRoutesPath);
 	console.debug({ routes });
-
-	// copy route files
 	await fs.writeFile(
 		path.join(projectBuildPath, 'routes.js'),
 		`export const routes = ${JSON.stringify(routes, null, 2)};\n`,
@@ -234,19 +278,18 @@ const copyFiles = async (src, dest, filter = () => true) => {
 		path.join(projectBuildPath, 'routes'),
 		(filePath) => {
 			const routeFile = filePath.replace(projectRootPath, '');
-			const route = Object.values(routes)
+			return Object.values(routes)
 				.find((route) => route.files.includes(routeFile));
-
-			// console.debug('filter', { filePath, routeFile, route });
-			return route;
 		}
 	);
+}
 
-	// copy components
-	const projectComponentsPath = path.join(projectRootPath, 'components');
+async function copyComponents({
+	projectComponentsPath,
+	projectBuildPath,
+}) {
 	const components = await loadComponents(projectComponentsPath);
 	console.debug({ components });
-
 	await fs.writeFile(
 		path.join(projectBuildPath, 'components.js'),
 		`export const components = ${JSON.stringify(components, null, 2)};\n`,
@@ -255,15 +298,13 @@ const copyFiles = async (src, dest, filter = () => true) => {
 		projectComponentsPath,
 		path.join(projectBuildPath, 'components'),
 	);
+}
 
-	// copy engine files
+async function copyEngine({
+	projectBuildPath,
+}) {
 	await copyFiles(
 		path.join(__dirname, 'src', 'engine'),
 		path.join(projectBuildPath, 'engine'),
 	);
-
-	// import/run host
-	require('./src/client-server');
-
-	console.log('failed to explode');
-})();
+}
