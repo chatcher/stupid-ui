@@ -3,10 +3,11 @@ import { routes as projectRoutes } from '../routes.js';
 import { setupStupidComponentAutoloader } from './components.js'
 
 export class StupidRouterView extends HTMLElement {
-	constructor() {
+	constructor(router) {
 		super();
-		console.log('StupidRouterView::constructor()');
+		console.log('StupidRouterView::constructor()', { router });
 		this.innerHTML = `<p>Loading...</p>`;
+		this.router = router;
 	}
 
 	async loadRoute(context) {
@@ -14,14 +15,14 @@ export class StupidRouterView extends HTMLElement {
 		if (!context) throw new Error('Cannot load empty route');
 		if (!context.name) throw new Error('Cannot load unnamed route');
 		this.innerHTML = `<${context.name} />`;
-		return setupStupidComponentAutoloader(context);
+		return setupStupidComponentAutoloader(context, this.router);
 	}
 }
 
 customElements.define('stupid-router-view', StupidRouterView);
 
 class Router {
-	routerView = new StupidRouterView();
+	routerView = new StupidRouterView(this);
 	routes = {
 		...engineRoutes,
 		...projectRoutes,

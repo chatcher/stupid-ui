@@ -41,16 +41,32 @@ const loadController = async (context) => {
 	return controllerModule ? controllerModule[controllerClassName] : null;
 };
 
-export const setupStupidComponentAutoloader = async (context) => {
+export const setupStupidComponentAutoloader = async (context, router) => {
 	const template = await loadTemplate(context);
 	const Controller = await loadController(context);
 
 	class StupidComponent extends HTMLElement {
 		constructor() {
 			super();
-			console.log('StupidComponentAutoloader::constructor()', { context });
+			console.log(`StupidComponent<${context.name}>::constructor()`, { context });
 			this.innerHTML = template;
 			this.controller = Controller ? new Controller(this) : null;
+
+			const anchors = this.querySelectorAll('a');
+			console.log(`StupidComponent<${context.name}>::constructor()`, { anchors });
+			Array.from(anchors).forEach((anchor) => {
+				const href = anchor.getAttribute('href')
+				if (router.routes[href]) {
+					console.log('hey, yeah!');
+					anchor.addEventListener('click', (event) => {
+						console.log({ event });
+						event.preventDefault();
+					});
+				} else {
+					console.log('hmm, nope.');
+				}
+				// console.log(anchor.getAttribute('href'));
+			});
 		}
 	}
 
