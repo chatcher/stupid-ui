@@ -12,26 +12,28 @@
 // 	adoptedCallback() {}
 // }
 
-export const setupStupidComponentAutoloader = async (context) => {
-	let template = `<p>No template for ${context.name}</p>`;
-
-	if (context.template) {
-		const templateResponse = await fetch(context.template);
-		if (templateResponse.ok) {
-			template = await templateResponse.text();
-		} else {
-			template = `<pre>Error: ${JSON.stringify(templateResponse, null, 2)
-				.replace(/[<>&"']/g, (ch) => ({
-					'<': '&lt;',
-					'>': '&gt;',
-					'&': '&amp;',
-					'"': '&quot;',
-					'\'': '&apos;',
-				}[ch]))
-			}</pre>`;
-			console.error('fetch template', { context, templateResponse });
-		}
+const loadTemplate = async (context) => {
+	if (!context.template) {
+		return `<p>No template for ${context.name}</p>`;
 	}
+
+	const templateResponse = await fetch(context.template);
+
+	return templateResponse.ok ?
+		templateResponse.text() :
+		`<pre>Error: ${JSON.stringify(templateResponse, null, 2)
+			.replace(/[<>&"']/g, (ch) => ({
+				'<': '&lt;',
+				'>': '&gt;',
+				'&': '&amp;',
+				'"': '&quot;',
+				'\'': '&apos;',
+			}[ch]))
+		}</pre>`;
+};
+
+export const setupStupidComponentAutoloader = async (context) => {
+	const template = await loadTemplate(context);
 
 	const controllerModule = context.controller ? await import(context.controller) : null;
 	const controllerClassName = `${context.name.replace(
