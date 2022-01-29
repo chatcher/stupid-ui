@@ -75,15 +75,15 @@ export const setupStupidComponentAutoloader = (context) => {
 				if (templateResponse.ok) {
 					this.innerHTML = await templateResponse.text();
 				} else {
-					this.innerHTML = `<pre>Error: ${
-						JSON.stringify(templateResponse, null, 2)
-							.replace(/[<>&"']/g, (ch) => ({
-								'<': '&lt;',
-								'>': '&gt;',
-								'&': '&amp;',
-								'"': '&quot;',
-								'\'': '&apos;',
-							}[ch]))}</pre>`;
+					this.innerHTML = `<pre>Error: ${JSON.stringify(templateResponse, null, 2)
+						.replace(/[<>&"']/g, (ch) => ({
+							'<': '&lt;',
+							'>': '&gt;',
+							'&': '&amp;',
+							'"': '&quot;',
+							'\'': '&apos;',
+						}[ch]))
+					}</pre>`;
 					console.error('fetch template', { context, templateResponse });
 				}
 			}
