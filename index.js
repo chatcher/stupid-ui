@@ -156,9 +156,8 @@ const copyFiles = async (src, dest, filter = () => true) => {
 		projectRoutesPath,
 		projectRootPath,
 		projectComponentsPath,
+		projectBuildPath,
 	} = await loadProjectPaths(projectConfig);
-
-	const projectBuildPath = await resetBuildTarget();
 
 	await copyRoutes({
 		projectRoutesPath,
@@ -245,21 +244,19 @@ async function loadProjectPaths(projectConfig) {
 		process.exit();
 	}
 
-	return {
-		projectRoutesPath,
-		projectRootPath,
-		projectComponentsPath,
-	};
-}
-
-async function resetBuildTarget() {
 	const projectBuildPath = 'build';
 	console.debug({ cwd: process.cwd(), projectBuildPath });
 	if (await directoryExists(projectBuildPath)) {
 		await fs.rmdir(projectBuildPath, { recursive: true });
 	}
 	fs.mkdir(projectBuildPath, { recursive: true });
-	return projectBuildPath;
+
+	return {
+		projectRoutesPath,
+		projectRootPath,
+		projectComponentsPath,
+		projectBuildPath,
+	};
 }
 
 async function copyRoutes({
