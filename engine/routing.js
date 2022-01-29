@@ -1,40 +1,9 @@
 import { routes as engineRoutes } from './routes.js';
 import { routes as projectRoutes } from '../routes.js';
 import { loader } from './loader.js';
+import { StupidRouterView } from './components.js';
 
 console.log('client-side routing', { engineRoutes, projectRoutes });
-
-class StupidRouterView extends HTMLElement {
-	constructor() {
-		super();
-		console.log('StupidRouterView::constructor()');
-		this.innerHTML = `<p>Loading...</p>`;
-	}
-
-	connectedCallback() {
-		console.log('StupidRouterView::connected()');
-	}
-
-	disconnectedCallback() {
-		console.log('StupidRouterView::disconnected()');
-	}
-
-	attributeChangedCallback(name, oldValue, newValue) {
-		console.log('StupidRouterView::update()', name, oldValue, newValue);
-	}
-
-	adoptedCallback() {
-		console.log('StupidRouterView::adopted()');
-	}
-
-	async loadRoute(route) {
-		console.log({ route });
-		if (!route) throw new Error('Cannot load empty route');
-		if (!route.name) throw new Error('Cannot load unnamed route');
-		await loader.loadRouteTemplate(route);
-		this.innerHTML = `<${route.name} />`;
-	}
-}
 
 customElements.define('stupid-router-view', StupidRouterView);
 
