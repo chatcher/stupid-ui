@@ -41,32 +41,44 @@ const loadController = async (context) => {
 	return controllerModule ? controllerModule[controllerClassName] : null;
 };
 
+const componentCache = {};
+
 export const setupStupidComponentAutoloader = async (context, router) => {
-	const template = await loadTemplate(context);
-	const Controller = await loadController(context);
+	if (!componentCache[context.name]) {
+		componentCache[context.name] = Promise.all([
+			loadTemplate(context),
+			loadController(context),
+		]).then(([
+			template,
+			Controller,
+		]) => {
+			class StupidComponent extends HTMLElement {
+				constructor() {
+					super();
 
-	class StupidComponent extends HTMLElement {
-		constructor() {
-			super();
-			console.log(`StupidComponent<${context.name}>::constructor()`, { context });
-			this.innerHTML = template;
-			this.controller = Controller ? new Controller(this) : null;
+					console.log(`StupidComponent<${context.name}>::constructor()`, { context });
 
-			const anchors = this.querySelectorAll('a');
-			Array.from(anchors).forEach((anchor) => {
-				const href = anchor.getAttribute('href')
-				if (router.routes[href]) {
-					anchor.addEventListener('click', (event) => {
-						event.preventDefault();
-						router.changeRoute(href);
+					this.innerHTML = template;
+					this.controller = Controller ? new Controller(this) : null;
+
+					Array.from(this.querySelectorAll('a')).forEach((anchor) => {
+						const href = anchor.getAttribute('href')
+						if (router.routes[href]) {
+							anchor.addEventListener('click', (event) => {
+								event.preventDefault();
+								router.changeRoute(href);
+							});
+						}
 					});
 				}
-			});
-		}
+			}
+
+			customElements.define(
+				context.name,
+				StupidComponent,
+			);
+		});
 	}
 
-	customElements.define(
-		context.name,
-		StupidComponent,
-	);
+	return componentCache[context.name];
 };
