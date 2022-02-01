@@ -8,10 +8,24 @@ export class StupidRouterView extends HTMLElement {
 		console.log('StupidRouterView::constructor()', { router });
 		this.innerHTML = `<p>Loading...</p>`;
 		this.router = router;
+		this.hijackAnchorClicks();
+	}
+
+	hijackAnchorClicks() {
+		this.addEventListener('click', (event) => {
+			const nodeName = event.target.nodeName.toLowerCase();
+			const routeName = event.target.getAttribute('href');
+			const route = this.router.routes[routeName];
+			if (nodeName === 'a' && route) {
+				event.stopPropagation();
+				event.preventDefault();
+				this.router.changeRoute(routeName);
+			}
+		});
 	}
 
 	async loadRoute(context) {
-		console.log({ context });
+		console.log('StupidRouterView::loadRoute()', { context });
 		if (!context) throw new Error('Cannot load empty route');
 		if (!context.name) throw new Error('Cannot load unnamed route');
 		this.innerHTML = `<${context.name} />`;
@@ -21,7 +35,7 @@ export class StupidRouterView extends HTMLElement {
 
 customElements.define('stupid-router-view', StupidRouterView);
 
-class Router {
+class EngineRouter {
 	routerView = new StupidRouterView(this);
 	routes = {
 		...engineRoutes,
@@ -29,7 +43,7 @@ class Router {
 	};
 
 	constructor() {
-		console.log('Router::constructor()', {
+		console.log('EngineRouter::constructor()', {
 			'this.routes': this.routes,
 			'location.pathname': location.pathname,
 		});
@@ -66,4 +80,4 @@ class Router {
 	}
 }
 
-export const router = new Router();
+export const router = new EngineRouter();
