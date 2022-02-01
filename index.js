@@ -26,11 +26,11 @@ const loadRoutes = async (rootPath, heirarchy = []) => {
 	const routePath = path.join('/routes', routeName);
 	const fullPath = path.join(rootPath, routeName);
 	const contents = await fs.readdir(fullPath);
-	console.debug('loadRoutes', { rootPath, routeName, fullPath, contents });
+	// console.debug('loadRoutes', { rootPath, routeName, fullPath, contents });
 
 	await Promise.all(contents.map(async (fileName) => {
 		const filePath = path.join(fullPath, fileName);
-		console.debug({ filePath, fileName });
+		// console.debug({ filePath, fileName });
 		if (await directoryExists(filePath)) {
 			Object.assign(routes, await loadRoutes(rootPath, [...heirarchy, fileName]));
 		} else if (/\.(html|js)$/.test(fileName)) {
@@ -70,11 +70,11 @@ const loadComponents = async (rootPath, heirarchy = []) => {
 	const componentPath = path.join('/components', componentName);
 	const fullPath = path.join(rootPath, componentName);
 	const contents = await fs.readdir(fullPath);
-	console.debug('loadComponents', { rootPath, componentName, fullPath, contents });
+	// console.debug('loadComponents', { rootPath, componentName, fullPath, contents });
 
 	await Promise.all(contents.map(async (fileName) => {
 		const filePath = path.join(fullPath, fileName);
-		console.debug({ filePath, fileName });
+		// console.debug({ filePath, fileName });
 		if (await directoryExists(filePath)) {
 			Object.assign(components, await loadComponents(rootPath, [...heirarchy, fileName]));
 		} else if (/\.(html|js)$/.test(fileName)) {
@@ -106,7 +106,7 @@ const loadComponents = async (rootPath, heirarchy = []) => {
 };
 
 async function check(context, filePath, fileName) {
-	console.debug({ filePath, fileName, cwd: process.cwd() });
+	// console.debug({ filePath, fileName, cwd: process.cwd() });
 	if (await fileExists(filePath)) {
 		context.files.push(fileName);
 		return fileName;
@@ -140,10 +140,10 @@ const copyFiles = async (src, dest, filter = () => true) => {
 	const args = Array.from(process.argv).slice(2);
 
 	const projectDirectory = await findProjectDirectory(args);
-	console.debug({ projectDirectory });
+	// console.debug({ projectDirectory });
 
 	const projectConfig = await loadProjectConfig();
-	console.debug({ projectConfig });
+	// console.debug({ projectConfig });
 
 	const {
 		projectRoutesPath,
@@ -183,7 +183,7 @@ async function findProjectDirectory(args) {
 		await fileExists(path.join(filepath, 'stupid-ui.json')) ? filepath : null
 	);
 	const directories = (await Promise.all(promises)).filter(Boolean);
-	console.debug({ directories });
+
 	if (!directories.length) {
 		console.error('Project directory required.');
 		process.exit();
@@ -203,8 +203,8 @@ async function findProjectDirectory(args) {
 async function loadProjectConfig() {
 	const projectFile = 'stupid-ui.json';
 	const fileContents = await fs.readFile(projectFile);
-	console.debug({ fileContents: fileContents.toString() });
 	const projectConfig = await noThrow(() => JSON.parse(fileContents));
+
 	if (!projectConfig) {
 		console.error('Project file should be valid JSON.');
 		process.exit();
@@ -212,6 +212,7 @@ async function loadProjectConfig() {
 		console.error('Project file should indicate a client directory on `.root`.');
 		process.exit();
 	}
+
 	return projectConfig;
 }
 
@@ -222,26 +223,34 @@ async function loadProjectPaths(projectConfig) {
 		.replace(/^\/+|\/+$/g, '') || '.';
 	const projectRoutesPath = path.join(projectRootPath, 'routes');
 	const projectComponentsPath = path.join(projectRootPath, 'components');
-	console.debug({ projectRootPath, projectRoutesPath, projectComponentsPath });
+	const projectBuildPath = 'build';
+	console.debug({
+		cwd: process.cwd(),
+		projectRootPath,
+		projectRoutesPath,
+		projectComponentsPath,
+		projectBuildPath,
+	});
 
 	if (!(await directoryExists(projectRootPath))) {
 		console.error('Not valid entry point:', projectRootPath);
 		process.exit();
 	}
+
 	if (!(await directoryExists(projectRoutesPath))) {
 		console.error('No routes:', projectRoutesPath);
 		process.exit();
 	}
+
 	if (!(await fileExists(path.join(projectRoutesPath, 'root.html')))) {
 		console.error('No root view:', projectRoutesPath);
 		process.exit();
 	}
 
-	const projectBuildPath = 'build';
-	console.debug({ cwd: process.cwd(), projectBuildPath });
 	if (await directoryExists(projectBuildPath)) {
 		await fs.rmdir(projectBuildPath, { recursive: true });
 	}
+
 	fs.mkdir(projectBuildPath, { recursive: true });
 
 	return {
