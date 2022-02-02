@@ -104,8 +104,8 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 						return this.controller[expression];
 					}
 
-					console.group();
-					console.error('Unknown/unsupported expression:', expression);
+					console.group(context.name);
+					console.error('Unknown/unsupported template expression:', expression);
 					console.log(this);
 					console.log({ this: this });
 					console.log(this.controller);
