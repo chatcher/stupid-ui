@@ -13,15 +13,45 @@ class StupidBaseComponent {
 }
 
 export class WhatTimeIsItController extends StupidBaseComponent {
-	now = 'loading...';
+	data = [];
+
+	get hour() {
+		return this.data[0];
+	}
+
+	get minute() {
+		return this.data[1];
+	}
+
+	get second() {
+		return this.data[2];
+	}
+
+	get ms() {
+		return this.data[3];
+	}
 
 	onInit() {
 		const interval = setInterval(() => {
-			this.now = new Date().toISOString();
+			this.boop();
 		}, 333);
 		setTimeout(() => {
 			clearInterval(interval);
-			this.now = 'Done';
+			this.bye();
 		}, 5000);
+	}
+
+	boop() {
+		const date = new Date()
+		this.data = [
+			date.getHours(),
+			date.getMinutes(),
+			date.getSeconds(),
+			date.getMilliseconds(),
+		];
+	}
+
+	bye() {
+		this.data = 'Done'.split('');
 	}
 }
