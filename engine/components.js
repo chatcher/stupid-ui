@@ -166,7 +166,7 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 				}
 
 				watchChildEvents(child) {
-					const attributes = Array.from(child.attributes)
+					Array.from(child.attributes)
 						.filter((attribute) => /^@/.test(attribute.name))
 						.forEach((attribute) => {
 							const eventName = attribute.name.slice(1);
@@ -186,18 +186,17 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 				}
 
 				bindDataToChild(child) {
-					const attributes = Array.from(child.attributes)
+					Array.from(child.attributes)
 						.filter((attribute) => /^#/.test(attribute.name))
-
-					attributes.forEach((attribute) => {
-						const propName = attribute.name.replace(/-(\w)/g, (_, ch) => ch.toUpperCase()).slice(1);
-						const bindingExpression = attribute.value.trim();
-						if (this.controller.hasOwnProperty(bindingExpression)) {
-							child.controller[propName] = this.controller[bindingExpression];
-						} else {
-							console.error('unsupported binding expression', bindingExpression);
-						}
-					});
+						.forEach((attribute) => {
+							const propName = attribute.name.replace(/-(\w)/g, (_, ch) => ch.toUpperCase()).slice(1);
+							const bindingExpression = attribute.value.trim();
+							if (this.controller.hasOwnProperty(bindingExpression)) {
+								child.controller[propName] = this.controller[bindingExpression];
+							} else {
+								console.error('unsupported binding expression', bindingExpression);
+							}
+						});
 				}
 
 				connectedCallback() {
