@@ -207,7 +207,7 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 				}
 
 				disconnectedCallback() {
-					console.error(`StupidComponent<${context.name}>::disconnect()`);
+					console.warn(`StupidComponent<${context.name}>::disconnect()`);
 				}
 			}
 
