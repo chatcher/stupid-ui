@@ -54,13 +54,13 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 				constructor() {
 					super();
 
-					console.log(`StupidComponent<${context.name}>::constructor()`, { context });
+					console.debug(`StupidComponent<${context.name}>::constructor()`, { context });
 
-					this.template = template;
+					this.componentId = `${context.name}-${Math.random().toString(16).substr(2)}`;
 					this.controller = Controller ? new Controller(this) : {};
 
 					this.connectHeirarchy();
-					this.initializeTemplate();
+					this.initializeTemplate(template);
 				}
 
 				connectHeirarchy() {
@@ -69,14 +69,60 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 					this.listenForChildComponents();
 				}
 
-				initializeTemplate() {
-					this.innerHTML = this.template;
+				initializeTemplate(template) {
+					const bindings = template.split('{{');
+					const templateParts = [bindings.shift()];
+					bindings.map((fragment) => fragment.split('}}'))
+						.forEach(([unsafeExpression, trailer]) => {
+							const expression = unsafeExpression.trim();
+							const slotName = `${this.componentId}-slot-${Math.random().toString(16).substr(2)}`;
+							const slot = `<slot
+								name="${slotName}"
+								/><span
+								data-component="${this.componentId}"
+								data-expression="${expression}"
+								slot="${slotName}"
+								>...</span>`;
+							templateParts.push(slot);
+							templateParts.push(trailer);
+						});
+					this.innerHTML = templateParts.join('');
+
 					this.populateTemplate();
+				}
+
+				populateTemplate() {
+					const bindings = this.querySelectorAll(`span[data-component="${this.componentId}"][data-expression]`);
+					Array.from(bindings).forEach((span) => {
+						const expression = span.getAttribute('data-expression');
+						span.innerText = this.executeTemplateExpression(expression.trim());
+					});
+				}
+
+				executeTemplateExpression(expression) {
+					if (this.controller.hasOwnProperty(expression)) {
+						return this.controller[expression];
+					}
+
+					console.group();
+					console.error('Unknown/unsupported expression:', expression);
+					console.log(this);
+					console.log({ this: this });
+					console.log(this.controller);
+					console.log({ controler: this.controller });
+					console.log(this.controller[expression]);
+					console.log({
+						expression,
+						value: this.controller[expression],
+					});
+					console.groupEnd();
+
+					return `?${context.name}:${expression}?`;
 				}
 
 				convertPropertiesToWatchedProperties() {
 					const props = Object.keys(this.controller).filter((prop) => /^\w/.test(prop));
-					console.log(`StupidComponent<${context.name}>::convertPropertiesToWatchedProperties()`, { props });
+					console.debug(`StupidComponent<${context.name}>::convertPropertiesToWatchedProperties()`, { props });
 					props.forEach((prop) => {
 						let _value = this.controller[prop];
 
@@ -87,7 +133,6 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 								enumerable: true,
 								get: () => _value,
 								set: (value) => {
-									console.log('value change', _value, 'to', value);
 									_value = value;
 									this.populateTemplate();
 									this.children.forEach((child) => this.bindDataToChild(child));
@@ -105,7 +150,7 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 					this.addEventListener('stupid-component-created', (event) => {
 						event.stopPropagation();
 						const child = event.target;
-						console.log(`StupidComponent<${context.name}>::child-attached`, child, { child });
+						console.debug(`StupidComponent<${context.name}>::child-attached`, child, { child });
 						this.children.push(child);
 						this.watchChildEvents(child);
 						this.bindDataToChild(child);
@@ -114,7 +159,7 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 					this.addEventListener('stupid-component-removed', () => {
 						event.stopPropagation();
 						const child = event.target;
-						console.log(`StupidComponent<${context.name}>::child-detached`, child, { child });
+						console.warn(`StupidComponent<${context.name}>::child-detached`, child, { child });
 						const index = this.children.indexOf(child);
 						this.children.splice(index, 1);
 					});
@@ -123,22 +168,21 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 				watchChildEvents(child) {
 					const attributes = Array.from(child.attributes)
 						.filter((attribute) => /^@/.test(attribute.name))
+						.forEach((attribute) => {
+							const eventName = attribute.name.slice(1);
+							const callbackExpression = attribute.value.trim();
+							console.debug(eventName, '->', callbackExpression);
 
-					attributes.forEach((attribute) => {
-						const eventName = attribute.name.slice(1);
-						const callbackExpression = attribute.value.trim();
-						console.log(eventName, '->', callbackExpression);
-
-						if (this.controller[callbackExpression]) {
-							child.addEventListener(eventName, (event) => {
-								event.stopPropagation();
-								const payload = event.payload;
-								this.controller[callbackExpression](payload);
-							});
-						} else {
-							console.log('unsupported callback expression', callbackExpression);
-						}
-					});
+							if (this.controller[callbackExpression]) {
+								child.addEventListener(eventName, (event) => {
+									event.stopPropagation();
+									const payload = event.payload;
+									this.controller[callbackExpression](payload);
+								});
+							} else {
+								console.error('unsupported callback expression', callbackExpression);
+							}
+						});
 				}
 
 				bindDataToChild(child) {
@@ -151,33 +195,9 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 						if (this.controller.hasOwnProperty(bindingExpression)) {
 							child.controller[propName] = this.controller[bindingExpression];
 						} else {
-							console.log('unsupported binding expression', bindingExpression);
+							console.error('unsupported binding expression', bindingExpression);
 						}
 					});
-				}
-
-				populateTemplate() {
-					const iter = document.createNodeIterator(this, NodeFilter.SHOW_TEXT);
-
-					let textnode;
-
-					while (textnode = iter.nextNode()) {
-						const matches = /\{\{.*\}\}/.test(textnode.textContent);
-
-						if (matches) {
-							const content = textnode.nodeValue;
-							textnode.nodeValue = content.replace(/\{\{\s*(\w+)\s*\}\}/g, (match, expression) => {
-								return this.executeTemplateExpression(expression.trim());
-							});
-						}
-					}
-				}
-
-				executeTemplateExpression(expression) {
-					if (this.controller.hasOwnProperty(expression)) {
-						return this.controller[expression];
-					}
-					return `?${expression}?`;
 				}
 
 				connectedCallback() {
