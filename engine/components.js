@@ -64,12 +64,17 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 				}
 
 				connectHeirarchy() {
-					this.convertPropertiesToWatchedProperties();
 					this.notifyParentComponent();
 					this.listenForChildComponents();
 				}
 
 				initializeTemplate(template) {
+					this.convertPropertiesToWatchedProperties();
+					this.bindTemplateSlots(template);
+					this.populateTemplate();
+				}
+
+				bindTemplateSlots(template) {
 					const bindings = template.split('{{');
 					const templateParts = [bindings.shift()];
 					bindings.map((fragment) => fragment.split('}}'))
@@ -87,8 +92,6 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 							templateParts.push(trailer);
 						});
 					this.innerHTML = templateParts.join('');
-
-					this.populateTemplate();
 				}
 
 				populateTemplate() {
