@@ -13,5 +13,5 @@ class StupidBaseComponent {
 }
 
 export class FancyValueController extends StupidBaseComponent {
-	value = 'none';
+	value = 'none (broken)';
 }
