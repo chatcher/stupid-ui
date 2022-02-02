@@ -197,11 +197,12 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 						.filter((attribute) => /^#/.test(attribute.name))
 						.forEach((attribute) => {
 							const propName = attribute.name.replace(/-(\w)/g, (_, ch) => ch.toUpperCase()).slice(1);
-							const bindingExpression = attribute.value.trim();
-							if (this.controller.hasOwnProperty(bindingExpression)) {
-								child.controller[propName] = this.controller[bindingExpression];
+							const expression = attribute.value.trim();
+							if (this.controller.hasOwnProperty(expression)) {
+								console.log(`${context.name} binding ${expression}`, child.componentId);
+								child.controller[propName] = this.controller[expression];
 							} else {
-								console.error('unsupported binding expression', bindingExpression);
+								console.error('unsupported binding expression', expression);
 							}
 						});
 				}
