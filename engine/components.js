@@ -75,7 +75,7 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 				}
 
 				bindTemplateSlots(template) {
-					const bindings = template.split('{{');
+					const bindings = template.trim().split('{{');
 					const templateParts = [bindings.shift()];
 					bindings.map((fragment) => fragment.split('}}'))
 						.forEach(([unsafeExpression, trailer]) => {
