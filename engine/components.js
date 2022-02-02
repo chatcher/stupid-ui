@@ -103,7 +103,7 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 				}
 
 				executeTemplateExpression(expression) {
-					if (this.controller.hasOwnProperty(expression)) {
+					if (expression in this.controller) {
 						return this.controller[expression];
 					}
 
@@ -176,7 +176,7 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 							const callbackExpression = attribute.value.trim();
 							console.debug(eventName, '->', callbackExpression);
 
-							if (this.controller[callbackExpression]) {
+							if (typeof this.controller[callbackExpression] === 'function') {
 								child.addEventListener(eventName, (event) => {
 									event.stopPropagation();
 									const payload = event.payload;
@@ -201,8 +201,7 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 						.forEach((attribute) => {
 							const propName = attribute.name.replace(/-(\w)/g, (_, ch) => ch.toUpperCase()).slice(1);
 							const expression = attribute.value.trim();
-							if (this.controller.hasOwnProperty(expression)) {
-								console.log(`${context.name} binding ${expression}`, child.componentId);
+							if (expression in this.controller) {
 								child.controller[propName] = this.controller[expression];
 							} else {
 								console.error('unsupported binding expression', expression);
