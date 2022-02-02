@@ -180,7 +180,14 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 									this.controller[callbackExpression](payload);
 								});
 							} else {
-								console.error('unsupported callback expression', callbackExpression);
+								console.group(context.name);
+								console.log(this);
+								console.log({ this: this });
+								console.log(child)
+								console.log({ child });
+								console.error('unsupported callback expression');
+								console.log(callbackExpression);
+								console.groupEnd();
 							}
 						});
 				}
