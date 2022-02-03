@@ -127,7 +127,7 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 					const props = Object.keys(this.controller).filter((prop) => /^\w/.test(prop));
 					console.debug(`StupidComponent<${context.name}>::convertPropertiesToWatchedProperties()`, { props });
 					props.forEach((prop) => {
-						let _value = this.controller[prop];
+						let _value = this.getAttribute(prop) || this.controller[prop] || null;
 
 						Object.defineProperty(
 							this.controller,
