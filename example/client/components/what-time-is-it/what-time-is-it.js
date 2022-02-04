@@ -38,7 +38,7 @@ export class WhatTimeIsItController extends StupidBaseComponent {
 		setTimeout(() => {
 			clearInterval(interval);
 			this.bye();
-		}, 5000);
+		}, 10000);
 	}
 
 	boop() {
