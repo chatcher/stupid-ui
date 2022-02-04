@@ -67,6 +67,8 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 			template,
 			Controller,
 		]) => {
+			const closure = {};
+
 			class StupidComponent extends HTMLElement {
 				children = [];
 
@@ -77,7 +79,7 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 
 					this.componentId = `${context.name}-${Math.random().toString(16).substr(2)}`;
 					this.controller = Controller ? new Controller(this) : {};
-					this.slottedContent = this.innerHTML;
+					closure.slottedContent = this.innerHTML;
 					this.innerHTML = '';
 				}
 
@@ -94,8 +96,8 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 						this.populateTemplate();
 					}
 
-					if (this.slottedContent.trim()) {
-						this.insertAdjacentHTML('beforeend', this.slottedContent);
+					if (closure.slottedContent.trim()) {
+						this.insertAdjacentHTML('beforeend', closure.slottedContent);
 					}
 				}
 
@@ -241,7 +243,7 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 				}
 
 				connectedCallback() {
-					if (!this.initialized) setTimeout(() => {
+					if (!closure.initialized) setTimeout(() => {
 						this.connectHeirarchy();
 						this.initializeTemplate(this.controller.$template || template);
 						if (this.controller && this.controller.onInit) {
@@ -249,7 +251,7 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 						}
 					});
 
-					this.initialized = true;
+					closure.initialized = true;
 				}
 
 				disconnectedCallback() {
