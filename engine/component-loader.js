@@ -150,25 +150,25 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 				}
 
 				convertPropertiesToWatchedProperties() {
-					const props = Object.keys(this.controller).filter((prop) => /^\w/.test(prop));
-					console.log(`StupidComponent<${context.name}>::convertPropertiesToWatchedProperties()`, { props });
-					props.forEach((prop) => {
-						let _value = this.getAttribute(prop) || this.controller[prop] || null;
+					Object.keys(this.controller)
+						.filter((prop) => /^\w/.test(prop))
+						.forEach((prop) => {
+							let _value = this.getAttribute(prop) || this.controller[prop] || null;
 
-						Object.defineProperty(
-							this.controller,
-							prop,
-							{
-								enumerable: true,
-								get: () => _value,
-								set: (value) => {
-									_value = value;
-									this.populateTemplate();
-									this.children.forEach((child) => this.bindDataToChild(child));
+							Object.defineProperty(
+								this.controller,
+								prop,
+								{
+									enumerable: true,
+									get: () => _value,
+									set: (value) => {
+										_value = value;
+										this.populateTemplate();
+										this.children.forEach((child) => this.bindDataToChild(child));
+									}
 								}
-							}
-						);
-					});
+							);
+						});
 				}
 
 				notifyParentComponent() {
