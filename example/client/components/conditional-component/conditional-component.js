@@ -1,16 +1,4 @@
-class StupidBaseComponent {
-	onInit() {}
-
-	constructor(element) {
-		this.$element = element;
-	}
-
-	$emit(name, payload) {
-		const event = new Event(name, { bubbles: true });
-		event.payload = payload;
-		this.$element.dispatchEvent(event);
-	}
-}
+import { StupidBaseComponent } from '/engine/components/stupid-base-component.js';
 
 export class ConditionalComponentController extends StupidBaseComponent {
 	constructor(element) {
@@ -22,10 +10,10 @@ export class ConditionalComponentController extends StupidBaseComponent {
 	onInit() {
 		const interval = setInterval(() => {
 			this.value ++;
-		}, 333);
+		}, 1000);
 		setTimeout(() => {
 			clearInterval(interval);
 			this.value = 0;
-		}, 10000);
+		}, 5000);
 	}
 }

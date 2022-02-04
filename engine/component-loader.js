@@ -10,31 +10,50 @@
 
 const loadTemplate = async (context) => {
 	if (!context.template) {
-		return `<p>No template for ${context.name}</p>`;
+		console.info(`No template declared for ${context.name}.`);
+		return null;
 	}
 
 	const templateResponse = await fetch(context.template);
 
-	return templateResponse.ok ?
-		templateResponse.text() :
-		`<pre>Error: ${JSON.stringify(templateResponse, null, 2)
-			.replace(/[<>&"']/g, (ch) => ({
-				'<': '&lt;',
-				'>': '&gt;',
-				'&': '&amp;',
-				'"': '&quot;',
-				'\'': '&apos;',
-			}[ch]))
-		}</pre>`;
+	if (!templateResponse.ok) {
+		console.error(`Error loading ${context.name} template.`)
+		console.warn(templateResponse);
+		return null;
+	}
+
+	return templateResponse.text();
 };
 
 const loadController = async (context) => {
-	const controllerModule = context.controller ? await import(context.controller) : null;
-	const controllerClassName = `${context.name.replace(
-		/(?:\b|\W)(\w)/g,
-		(_, letter) => letter.toUpperCase()
-	)}Controller`;
-	return controllerModule ? controllerModule[controllerClassName] : null;
+	if (!context.controller) {
+		console.info(`No controller declared for ${context.name}.`);
+		return null;
+	}
+
+	try {
+		const controllerModule = await import(context.controller);
+		const controllerClassName = `${context.name.replace(
+			/(?:\b|\W)(\w)/g,
+			(_, letter) => letter.toUpperCase()
+		)}Controller`;
+
+		if (!controllerModule) {
+			console.error(`Empty ${context.name} module.`);
+			return null;
+		}
+
+		if (!controllerModule[controllerClassName]) {
+			console.warn(`No controller exported from ${context.name} module.`);
+			return null;
+		}
+
+		return controllerModule[controllerClassName]
+	} catch (error) {
+		console.error(`Error loading ${context.name} module.`);
+		console.warn(error);
+		return null;
+	}
 };
 
 const componentCache = {};
@@ -58,9 +77,8 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 
 					this.componentId = `${context.name}-${Math.random().toString(16).substr(2)}`;
 					this.controller = Controller ? new Controller(this) : {};
-
-					this.connectHeirarchy();
-					this.initializeTemplate(template);
+					this.slottedContent = this.innerHTML;
+					this.innerHTML = '';
 				}
 
 				connectHeirarchy() {
@@ -70,8 +88,15 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 
 				initializeTemplate(template) {
 					this.convertPropertiesToWatchedProperties();
-					this.bindTemplateSlots(template);
-					this.populateTemplate();
+
+					if(template) {
+						this.bindTemplateSlots(template);
+						this.populateTemplate();
+					}
+
+					if (this.slottedContent.trim()) {
+						this.insertAdjacentHTML('beforeend', this.slottedContent);
+					}
 				}
 
 				bindTemplateSlots(template) {
@@ -91,6 +116,7 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 							templateParts.push(slot);
 							templateParts.push(trailer);
 						});
+
 					this.innerHTML = templateParts.join('');
 				}
 
@@ -125,7 +151,7 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 
 				convertPropertiesToWatchedProperties() {
 					const props = Object.keys(this.controller).filter((prop) => /^\w/.test(prop));
-					console.debug(`StupidComponent<${context.name}>::convertPropertiesToWatchedProperties()`, { props });
+					console.log(`StupidComponent<${context.name}>::convertPropertiesToWatchedProperties()`, { props });
 					props.forEach((prop) => {
 						let _value = this.getAttribute(prop) || this.controller[prop] || null;
 
@@ -203,16 +229,27 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 							const expression = attribute.value.trim();
 							if (expression in this.controller) {
 								child.controller[propName] = this.controller[expression];
-							} else {
+							} else try {
+								// TODO: security on eval
+								const result = eval(`this.controller.${expression}`)
+								child.controller[propName] = result;
+							} catch (error) {
 								console.error('unsupported binding expression', expression);
+								console.error(error);
 							}
 						});
 				}
 
 				connectedCallback() {
-					if (this.controller && this.controller.onInit) {
-						this.controller.onInit();
-					}
+					if (!this.initialized) setTimeout(() => {
+						this.connectHeirarchy();
+						this.initializeTemplate(this.controller.$template || template);
+						if (this.controller && this.controller.onInit) {
+							this.controller.onInit();
+						}
+					});
+
+					this.initialized = true;
 				}
 
 				disconnectedCallback() {

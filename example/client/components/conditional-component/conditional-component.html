@@ -1,23 +1,9 @@
 <p>
 	Conditional Component<br/>
 
-	<stupid-switch case="value % 3">
-		<switch-case value="0">zero</switch-case>
-		<switch-case value="1">one</switch-case>
-		<switch-case value="2">two</switch-case>
+	<stupid-switch #value="value % 3">
+		<switch-case when="0">zero</switch-case>
+		<switch-case when="1">one</switch-case>
+		<switch-case when="2">two</switch-case>
 	</stupid-switch>
-
-	<!--
-	<stupid-logic if="value % 3 === 0">
-		zero
-	</stupid-logic>
-
-	<stupid-logic else-if="value % 3 === 1">
-		one
-	</stupid-logic>
-
-	<stupid-logic else>
-		two
-	</stupid-logic>
- 	-->
 </p>
