@@ -1,6 +1,6 @@
 import { routes as engineRoutes } from './routes.js';
 import { routes as projectRoutes } from '../routes.js';
-import { setupStupidComponentAutoloader } from './components.js'
+import { setupStupidComponentAutoloader } from './component-loader.js'
 
 export class StupidRouterView extends HTMLElement {
 	constructor(router) {
