@@ -12,8 +12,8 @@ export function initializeTemplate(element, template) {
 		populateTemplate(element);
 	}
 
-	if (element.slottedContent.trim()) {
-		element.insertAdjacentHTML('beforeend', element.slottedContent);
+	if (element.slottedContent) {
+		element.insertAdjacentHTML('beforeend', element.slottedContent.trim());
 	}
 }
 
@@ -81,28 +81,36 @@ function initializeTemplateIterations(element) {
 	const iterations = Array.from(element.querySelectorAll('[for-each]'));
 
 	if (iterations.length) {
-		console.group()
-		console.log(element, { element });
+		// console.group()
+		// console.log(element, { element });
 		iterations.forEach((iteration, index) => {
 			const itemName = iteration.getAttribute('for-each');
 			const listName = iteration.getAttribute('#in');
+			const template = iteration.innerHTML;
 
-			console.group(`found #${index + 1}`);
-			console.log(iteration, { iteration });
-			console.log({ 'for each': itemName });
-			console.log({ in: listName });
+			// console.group(`found #${index + 1}`);
+			// console.log(iteration, { iteration });
+			// console.log({ 'for each': itemName });
+			// console.log({ in: listName });
+			// console.log({ template });
 
 			if (listName in element.controller) {
 				const list = Array.from(element.controller[listName]);
-				console.log('list:', list);
+				// console.log('list:', list);
 
 				list.forEach((item) => {
 					const injection = iteration.cloneNode(true);
 					injection.removeAttribute('for-each');
 					injection.removeAttribute('#in');
 
-					console.log([injection]);
-					iteration.insertAdjacentElement('afterend', injection);
+					injection.controller = {};
+					injection.controller[itemName] = item;
+
+					// console.log([injection]);
+
+					initializeTemplate(injection, template);
+
+					iteration.insertAdjacentElement('beforebegin', injection);
 				});
 
 				iteration.remove();
@@ -111,9 +119,9 @@ function initializeTemplateIterations(element) {
 				console.error('Property not found for iteration:', listName);
 			}
 
-			console.groupEnd();
+			// console.groupEnd();
 		});
-		console.groupEnd();
+		// console.groupEnd();
 	}
 }
 
