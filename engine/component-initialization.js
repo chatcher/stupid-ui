@@ -21,7 +21,7 @@ export function initializeTemplate(element, template) {
 
 	if(template) {
 		bindTemplateSlots(element, template);
-		maybeSomethingAboutIterators(element);
+		initializeTemplateIterations(element);
 		populateTemplate(element);
 	}
 
@@ -62,23 +62,32 @@ function getBindingReplacementSlot(element, unsafeExpression) {
 	return `{{${expression}}}`;
 }
 
-function maybeSomethingAboutIterators(element) {
-	const iterators = Array.from(element.querySelectorAll('[for-each]'));
-	if (!iterators.length) {
-		return;
-	}
+function initializeTemplateIterations(element) {
+	const iterations = Array.from(element.querySelectorAll('[for-each]'));
 
-	console.group()
-	console.log(element, { element });
-	iterators.forEach((iterator, index) => {
-		console.group(`found #${index + 1}`);
-		console.log(iterator, { iterator });
-		console.log({ 'for each': iterator.attributes['for-each'] });
-		console.log({ in: iterator.attributes['#in'] });
-		console.log('source:', element.controller[iterator.attributes['#in'].value]);
+	if (iterations.length) {
+		console.group()
+		console.log(element, { element });
+		iterations.forEach((iterator, index) => {
+			const itemName = iterator.getAttribute('for-each');
+			const listName = iterator.getAttribute('#in');
+
+			console.group(`found #${index + 1}`);
+			console.log(iterator, { iterator });
+			console.log({ 'for each': itemName });
+			console.log({ in: listName });
+
+			if (listName in element.controller) {
+				const list = Array.from(element.controller[listName]);
+				console.log('list:', list);
+			} else {
+				console.error('Property not found for iteration:', listName);
+			}
+
+			console.groupEnd();
+		});
 		console.groupEnd();
-	});
-	console.groupEnd();
+	}
 }
 
 function populateTemplate(element) {
