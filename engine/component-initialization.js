@@ -36,8 +36,7 @@ function bindTemplateSlots(element, template) {
 	const templateParts = [bindings.shift()];
 	bindings.map((fragment) => fragment.split('}}'))
 		.forEach(([unsafeExpression, trailer]) => {
-			const expression = unsafeExpression.trim();
-			const slot = getBindingSlotReplacemet(element, expression);
+			const slot = getBindingReplacementSlot(element, unsafeExpression);
 			templateParts.push(slot);
 			templateParts.push(trailer);
 		});
@@ -45,7 +44,9 @@ function bindTemplateSlots(element, template) {
 	element.innerHTML = templateParts.join('');
 }
 
-function getBindingSlotReplacement(element, expression) {
+function getBindingReplacementSlot(element, unsafeExpression) {
+	const expression = unsafeExpression.trim();
+
 	if (expression in element.controller) {
 		const slotName = `${element.componentId}-slot-${Math.random().toString(16).substr(2)}`;
 		return `<slot
@@ -57,7 +58,7 @@ function getBindingSlotReplacement(element, expression) {
 			>...</span>`;
 	}
 
-	return expression;
+	return `{{${expression}}}`;
 }
 
 function populateTemplate(element) {
