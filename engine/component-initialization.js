@@ -81,22 +81,13 @@ function initializeTemplateIterations(element) {
 	const iterations = Array.from(element.querySelectorAll('[for-each]'));
 
 	if (iterations.length) {
-		// console.group()
-		// console.log(element, { element });
 		iterations.forEach((iteration, index) => {
 			const itemName = iteration.getAttribute('for-each');
 			const listName = iteration.getAttribute('#in');
 			const template = iteration.innerHTML;
 
-			// console.group(`found #${index + 1}`);
-			// console.log(iteration, { iteration });
-			// console.log({ 'for each': itemName });
-			// console.log({ in: listName });
-			// console.log({ template });
-
 			if (listName in element.controller) {
 				const list = Array.from(element.controller[listName]);
-				// console.log('list:', list);
 
 				list.forEach((item) => {
 					const injection = iteration.cloneNode(true);
@@ -106,22 +97,17 @@ function initializeTemplateIterations(element) {
 					injection.controller = {};
 					injection.controller[itemName] = item;
 
-					// console.log([injection]);
-
 					initializeTemplate(injection, template);
 
 					iteration.insertAdjacentElement('beforebegin', injection);
 				});
 
+				// TODO: we actually need to preserve the original node
 				iteration.remove();
-
 			} else {
 				console.error('Property not found for iteration:', listName);
 			}
-
-			// console.groupEnd();
 		});
-		// console.groupEnd();
 	}
 }
 
