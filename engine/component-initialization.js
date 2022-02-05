@@ -21,6 +21,7 @@ export function initializeTemplate(element, template) {
 
 	if(template) {
 		bindTemplateSlots(element, template);
+		maybeSomethingAboutIterators(element);
 		populateTemplate(element);
 	}
 
@@ -59,6 +60,25 @@ function getBindingReplacementSlot(element, unsafeExpression) {
 	}
 
 	return `{{${expression}}}`;
+}
+
+function maybeSomethingAboutIterators(element) {
+	const iterators = Array.from(element.querySelectorAll('[for-each]'));
+	if (!iterators.length) {
+		return;
+	}
+
+	console.group()
+	console.log(element, { element });
+	iterators.forEach((iterator, index) => {
+		console.group(`found #${index + 1}`);
+		console.log(iterator, { iterator });
+		console.log({ 'for each': iterator.attributes['for-each'] });
+		console.log({ in: iterator.attributes['#in'] });
+		console.log('source:', element.controller[iterator.attributes['#in'].value]);
+		console.groupEnd();
+	});
+	console.groupEnd();
 }
 
 function populateTemplate(element) {
