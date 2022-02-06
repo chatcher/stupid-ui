@@ -1,7 +1,7 @@
 const path = require('path');
 const { fileExists, directoryExists } = require('./utilities');
 
-module.exports.findProjectDirectory = async (args) => {
+module.exports.changeToProjectDirectory = async (args) => {
 	if (!args.length) {
 		console.error('Project directory required.');
 		process.exit();

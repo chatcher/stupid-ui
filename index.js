@@ -1,4 +1,4 @@
-const { findProjectDirectory } = require('./src/find-project-directory');
+const { changeToProjectDirectory } = require('./src/find-project-directory');
 const { loadProjectConfig } = require('./src/load-project-config');
 const { loadProjectPaths } = require('./src/load-project-paths');
 const { copyRoutes } = require('./src/copy-routes');
@@ -9,12 +9,9 @@ const { copyEngine } = require('./src/copy-engine');
 (async () => {
 	const args = Array.from(process.argv).slice(2);
 
-	// const projectDirectory =
-	await findProjectDirectory(args); // TODO: rename
-	// console.debug({ projectDirectory });
+	await changeToProjectDirectory(args);
 
 	const projectConfig = await loadProjectConfig();
-	// console.debug({ projectConfig });
 
 	const {
 		projectRoutesPath,
