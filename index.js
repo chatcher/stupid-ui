@@ -1,5 +1,8 @@
 const fs = require('fs/promises');
 const path = require('path');
+const { findProjectDirectory } = require('./src/find-project-directory');
+const { loadProjectConfig } = require('./src/load-project-config');
+const { loadProjectPaths } = require('./src/load-project-paths');
 
 const noThrow = async (method) => {
 	try {
@@ -213,96 +216,6 @@ const copyFiles = async (src, dest, filter = () => true) => {
 	console.debug('failed to explode');
 })();
 
-async function findProjectDirectory(args) {
-	if (!args.length) {
-		console.error('Project directory required.');
-		process.exit();
-	}
-
-	const promises = args.map(async (filepath) =>
-		await fileExists(path.join(filepath, 'stupid-ui.json')) ? filepath : null
-	);
-	const directories = (await Promise.all(promises)).filter(Boolean);
-
-	if (!directories.length) {
-		console.error('Project directory required.');
-		process.exit();
-	} else if (directories.length > 1) {
-		console.error('Too many candidate directories.');
-		process.exit();
-	}
-	const projectDirectory = directories[0];
-	if (!(await directoryExists(projectDirectory))) {
-		console.error('Directory not found:', projectDirectory);
-		process.exit();
-	}
-	process.chdir(projectDirectory);
-	return projectDirectory;
-}
-
-async function loadProjectConfig() {
-	const projectFile = 'stupid-ui.json';
-	const fileContents = await fs.readFile(projectFile);
-	const projectConfig = await noThrow(() => JSON.parse(fileContents));
-
-	if (!projectConfig) {
-		console.error('Project file should be valid JSON.');
-		process.exit();
-	} else if (!projectConfig.root) {
-		console.error('Project file should indicate a client directory on `.root`.');
-		process.exit();
-	}
-
-	return projectConfig;
-}
-
-async function loadProjectPaths(projectConfig) {
-	const unsafeProjectRootOption = projectConfig.root;
-	const projectRootPath = `${path.normalize(unsafeProjectRootOption)}/`
-		.replace(/^(\.\.\/)+/g, '')
-		.replace(/^\/+|\/+$/g, '') || '.';
-	const projectRoutesPath = path.join(projectRootPath, 'routes');
-	const projectComponentsPath = path.join(projectRootPath, 'components');
-	const projectServicesPath = path.join(projectRootPath, 'services');
-	const projectBuildPath = 'build';
-	console.debug({
-		cwd: process.cwd(),
-		projectRootPath,
-		projectRoutesPath,
-		projectComponentsPath,
-		projectServicesPath,
-		projectBuildPath,
-	});
-
-	if (!(await directoryExists(projectRootPath))) {
-		console.error('Not valid entry point:', projectRootPath);
-		process.exit();
-	}
-
-	if (!(await directoryExists(projectRoutesPath))) {
-		console.error('No routes:', projectRoutesPath);
-		process.exit();
-	}
-
-	if (!(await fileExists(path.join(projectRoutesPath, 'root.html')))) {
-		console.error('No root view:', projectRoutesPath);
-		process.exit();
-	}
-
-	if (await directoryExists(projectBuildPath)) {
-		await fs.rmdir(projectBuildPath, { recursive: true });
-	}
-
-	fs.mkdir(projectBuildPath, { recursive: true });
-
-	return {
-		projectRoutesPath,
-		projectRootPath,
-		projectComponentsPath,
-		projectServicesPath,
-		projectBuildPath,
-	};
-}
 
 async function copyRoutes({
 	projectRoutesPath,
