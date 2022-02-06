@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 module.exports = {
 	'env': {
 		'node': true,
@@ -21,13 +23,13 @@ module.exports = {
 		'comma-dangle': [
 			'error',
 		  {
-        'arrays': 'never',
-        'objects': 'always-multiline',
-        'imports': 'never',
-        'exports': 'never',
-        'functions': 'ignore',
-    	}
-    ],
+				'arrays': 'always-multiline',
+				'objects': 'always-multiline',
+				'imports': 'never',
+				'exports': 'never',
+				'functions': 'ignore',
+			}
+		],
 		'object-curly-spacing': [
 			'error',
 			'always',

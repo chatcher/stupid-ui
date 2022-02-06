@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 module.exports = {
 	'env': {
 		'browser': true,
@@ -10,10 +12,15 @@ module.exports = {
 		'ecmaVersion': 'latest',
 		'sourceType': 'module',
 	},
+	'ignorePatterns': [
+		'build/**',
+	],
 	'rules': {
+		'capitalized-comments': 'off',
 		'object-curly-spacing': [
 			'error',
 			'always',
 		],
+		'space-unary-ops': 'off',
 	},
 };

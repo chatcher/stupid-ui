@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 module.exports = {
 	'env': {
 		'browser': true,
@@ -15,16 +17,18 @@ module.exports = {
 			'error',
 			'always',
 		],
+		'capitalized-comments': 'off',
 		'comma-dangle': [
 			'error',
 		  {
-				'arrays': 'never',
+				'arrays': 'always-multiline',
 				'objects': 'always-multiline',
-				'imports': 'never',
+				'imports': 'always-multiline',
 				'exports': 'never',
 				'functions': 'ignore',
 			}
 		],
+		'curly': 'off',
 		'object-curly-spacing': [
 			'error',
 			'always',
