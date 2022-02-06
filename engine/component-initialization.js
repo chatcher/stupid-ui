@@ -161,17 +161,18 @@ function getBindingReplacementSlot(element, unsafeExpression) {
 }
 
 function initializeTemplateIteration(element, iteration) {
-	const parent = iteration.parentElement;
-	const itemName = iteration.getAttribute('for-each');
-	const listName = iteration.getAttribute('#in');
-	const template = iteration.innerHTML;
-
-	if (!(listName in element.controller)) {
-		console.error('Property not found for iteration:', listName);
+	if (!(iteration.getAttribute('#in') in element.controller)) {
+		console.error('Property not found for iteration:', iteration.getAttribute('#in'));
 		return;
 	}
 
+	const listName = iteration.getAttribute('#in');
+	const parent = iteration.parentElement;
+	const itemName = iteration.getAttribute('for-each');
+	const template = iteration.innerHTML;
 	const slot = document.createElement('slot');
+	const dataSource = Object.getOwnPropertyDescriptor(element.controller, listName);
+
 	slot.name = [
 		element.componentId,
 		listName,
@@ -183,16 +184,12 @@ function initializeTemplateIteration(element, iteration) {
 	iteration.removeAttribute('#in');
 	iteration.setAttribute('iteration-group', slot.name);
 
-	const original = Object.getOwnPropertyDescriptor(element.controller, listName);
-
-	console.assert(original.get, `Expected ${listName} to have a getter`);
-	console.assert(original.set, `Expected ${listName} to have a setter`);
 
 	setProxy();
 	setContent();
 
 	function setProxy() {
-		const proxy = new Proxy(original.get(), {
+		const proxy = new Proxy(dataSource.get(), {
 			get: (self, prop) => {
 				return self[prop];
 			},
@@ -206,7 +203,7 @@ function initializeTemplateIteration(element, iteration) {
 		Object.defineProperty(element.controller, listName, {
 			get: () => proxy,
 			set: (value) => {
-				original.set(value);
+				dataSource.set(value);
 				setProxy();
 			},
 		});
@@ -216,17 +213,10 @@ function initializeTemplateIteration(element, iteration) {
 		Array.from(
 			parent.querySelectorAll(`[iteration-group="${slot.name}"]`)
 		).forEach((removal) => removal.remove());
-		// let removal = headNode.nextSibling;
 
-		// while (removal) {
-		// 	removal.remove();
-		// 	removal = removal.nextSibling === tailNode ? null : removal.nextSibling;
-		// }
-
-		original.get().forEach((item) => {
+		dataSource.get().forEach((item) => {
 			const injection = iteration.cloneNode(true);
 
-			injection.setAttribute('slot', slot.name);
 			injection.controller = {};
 			injection.controller[itemName] = item;
 
@@ -235,7 +225,6 @@ function initializeTemplateIteration(element, iteration) {
 			slot.before(injection);
 		});
 	}
-
 }
 
 function executeTemplateExpression(element, expression) {
