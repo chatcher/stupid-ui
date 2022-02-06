@@ -48,4 +48,4 @@ module.exports.loadProjectPaths = async (projectConfig) => {
 		projectServicesPath,
 		projectBuildPath,
 	};
-}
+};

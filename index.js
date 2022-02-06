@@ -176,7 +176,8 @@ const copyFiles = async (src, dest, filter = () => true) => {
 (async () => {
 	const args = Array.from(process.argv).slice(2);
 
-	const projectDirectory = await findProjectDirectory(args);
+	// const projectDirectory =
+	await findProjectDirectory(args); // TODO: rename
 	// console.debug({ projectDirectory });
 
 	const projectConfig = await loadProjectConfig();
@@ -215,7 +216,6 @@ const copyFiles = async (src, dest, filter = () => true) => {
 
 	console.debug('failed to explode');
 })();
-
 
 async function copyRoutes({
 	projectRoutesPath,

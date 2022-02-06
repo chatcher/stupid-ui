@@ -22,7 +22,7 @@ const loadTemplate = async (context) => {
 	const templateResponse = await fetch(context.template);
 
 	if (!templateResponse.ok) {
-		console.error(`Error loading ${context.name} template.`)
+		console.error(`Error loading ${context.name} template.`);
 		console.warn(templateResponse);
 		return null;
 	}
@@ -53,7 +53,7 @@ const loadController = async (context) => {
 			return null;
 		}
 
-		return controllerModule[controllerClassName]
+		return controllerModule[controllerClassName];
 	} catch (error) {
 		console.error(`Error loading ${context.name} module.`);
 		console.warn(error);

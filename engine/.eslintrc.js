@@ -18,13 +18,13 @@ module.exports = {
 		'comma-dangle': [
 			'error',
 		  {
-        'arrays': 'never',
-        'objects': 'always-multiline',
-        'imports': 'never',
-        'exports': 'never',
-        'functions': 'ignore',
-    	}
-    ],
+				'arrays': 'never',
+				'objects': 'always-multiline',
+				'imports': 'never',
+				'exports': 'never',
+				'functions': 'ignore',
+			}
+		],
 		'object-curly-spacing': [
 			'error',
 			'always',

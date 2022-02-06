@@ -6,7 +6,7 @@ export function connectHeirarchy(element) {
 export function initializeTemplate(element, template) {
 	convertPropertiesToWatchedProperties(element);
 
-	if(template) {
+	if (template) {
 		bindTemplateSlots(element, template);
 		initializeTemplateIterations(element);
 		populateTemplate(element);
@@ -58,7 +58,7 @@ function convertPropertiesToWatchedProperties(element) {
 						_value = value;
 						populateTemplate(element);
 						element.children.forEach((child) => bindDataToChild(element, child));
-					}
+					},
 				}
 			);
 		});
@@ -108,14 +108,14 @@ function watchChildEvents(element, child) {
 			if (typeof element.controller[callbackExpression] === 'function') {
 				child.addEventListener(eventName, (event) => {
 					event.stopPropagation();
-					const payload = event.payload;
+					const { payload } = event;
 					element.controller[callbackExpression](payload);
 				});
 			} else {
 				console.group(element.context.name);
 				console.log(element);
 				console.log({ element });
-				console.log(child)
+				console.log(child);
 				console.log({ child });
 				console.error('unsupported callback expression');
 				console.log(callbackExpression);
@@ -176,7 +176,7 @@ function initializeTemplateIteration(element, iteration) {
 	slot.name = [
 		element.componentId,
 		listName,
-		Math.random().toString(16).substr(2, 6),
+		Math.random().toString(16).substr(2, 6)
 	].join('-');
 
 	iteration.replaceWith(slot);
@@ -184,15 +184,12 @@ function initializeTemplateIteration(element, iteration) {
 	iteration.removeAttribute('#in');
 	iteration.setAttribute('iteration-group', slot.name);
 
-
 	setProxy();
 	setContent();
 
 	function setProxy() {
 		const proxy = new Proxy(dataSource.get(), {
-			get: (self, prop) => {
-				return self[prop];
-			},
+			get: (self, prop) => self[prop],
 			set: (self, prop, value) => {
 				self[prop] = value;
 				setContent();
