@@ -26,11 +26,10 @@ const loadRoutes = async (rootPath, heirarchy = []) => {
 	const routePath = path.join('/routes', routeName);
 	const fullPath = path.join(rootPath, routeName);
 	const contents = await fs.readdir(fullPath);
-	// console.debug('loadRoutes', { rootPath, routeName, fullPath, contents });
 
 	await Promise.all(contents.map(async (fileName) => {
 		const filePath = path.join(fullPath, fileName);
-		// console.debug({ filePath, fileName });
+
 		if (await directoryExists(filePath)) {
 			Object.assign(routes, await loadRoutes(rootPath, [...heirarchy, fileName]));
 		} else if (/\.(html|js)$/.test(fileName)) {
@@ -70,11 +69,9 @@ const loadComponents = async (rootPath, heirarchy = []) => {
 	const componentPath = path.join('/components', componentName);
 	const fullPath = path.join(rootPath, componentName);
 	const contents = await fs.readdir(fullPath);
-	// console.debug('loadComponents', { rootPath, componentName, fullPath, contents });
 
 	await Promise.all(contents.map(async (fileName) => {
 		const filePath = path.join(fullPath, fileName);
-		// console.debug({ filePath, fileName });
 		if (await directoryExists(filePath)) {
 			Object.assign(components, await loadComponents(rootPath, [...heirarchy, fileName]));
 		} else if (/\.(html|js)$/.test(fileName)) {
@@ -87,7 +84,7 @@ const loadComponents = async (rootPath, heirarchy = []) => {
 			const templatePath = `${baseFilePath}.html`;
 			const templateFile = path.join(componentPath, `${fileBaseName}.html`);
 
-			const controllerPath = `${baseFilePath}.html`;
+			const controllerPath = `${baseFilePath}.js`;
 			const controllerFile = path.join(componentPath, `${fileBaseName}.js`);
 
 			const component = {
@@ -103,6 +100,43 @@ const loadComponents = async (rootPath, heirarchy = []) => {
 	}));
 
 	return components;
+};
+
+const loadServices = async (rootPath, heirarchy = []) => {
+	const services = {};
+
+	const serviceName = path.join(...heirarchy);
+	const servicePath = path.join('/services', serviceName);
+	const fullPath = path.join(rootPath, serviceName);
+	const contents = await fs.readdir(fullPath);
+
+	await Promise.all(contents.map(async (fileName) => {
+		const filePath = path.join(fullPath, fileName);
+
+		if (await directoryExists(filePath)) {
+			Object.assign(services, await loadServices(rootPath, [...heirarchy, fileName]));
+		} else if (/\.js$/.test(fileName)) {
+			const baseFilePath = filePath.replace(/\.js$/, '');
+
+			const fileBaseName = fileName.replace(/\.js$/, '');
+
+			const name = serviceName.replace(/^\//, '').replace(/\W+/g, '-').toLowerCase();
+
+			const controllerPath = `${baseFilePath}.js`;
+			const controllerFile = path.join(servicePath, `${fileBaseName}.js`);
+
+			const service = {
+				name,
+				files: [],
+			};
+
+			service.service = await check(service, controllerPath, controllerFile);
+
+			services[serviceName] = service;
+		}
+	}));
+
+	return services;
 };
 
 async function check(context, filePath, fileName) {
@@ -149,6 +183,7 @@ const copyFiles = async (src, dest, filter = () => true) => {
 		projectRoutesPath,
 		projectRootPath,
 		projectComponentsPath,
+		projectServicesPath,
 		projectBuildPath,
 	} = await loadProjectPaths(projectConfig);
 
@@ -163,12 +198,17 @@ const copyFiles = async (src, dest, filter = () => true) => {
 		projectBuildPath,
 	});
 
+	await copyServices({
+		projectServicesPath,
+		projectBuildPath,
+	});
+
 	await copyEngine({
 		projectBuildPath,
 	});
 
 	// import/run host
-	require('./src/client-server');
+	// require('./src/client-server');
 
 	console.debug('failed to explode');
 })();
@@ -223,12 +263,14 @@ async function loadProjectPaths(projectConfig) {
 		.replace(/^\/+|\/+$/g, '') || '.';
 	const projectRoutesPath = path.join(projectRootPath, 'routes');
 	const projectComponentsPath = path.join(projectRootPath, 'components');
+	const projectServicesPath = path.join(projectRootPath, 'services');
 	const projectBuildPath = 'build';
 	console.debug({
 		cwd: process.cwd(),
 		projectRootPath,
 		projectRoutesPath,
 		projectComponentsPath,
+		projectServicesPath,
 		projectBuildPath,
 	});
 
@@ -257,6 +299,7 @@ async function loadProjectPaths(projectConfig) {
 		projectRoutesPath,
 		projectRootPath,
 		projectComponentsPath,
+		projectServicesPath,
 		projectBuildPath,
 	};
 }
@@ -296,6 +339,22 @@ async function copyComponents({
 	await copyFiles(
 		projectComponentsPath,
 		path.join(projectBuildPath, 'components'),
+	);
+}
+
+async function copyServices({
+	projectServicesPath,
+	projectBuildPath,
+}) {
+	const services = await loadServices(projectServicesPath);
+	console.debug({ services });
+	await fs.writeFile(
+		path.join(projectBuildPath, 'services.js'),
+		`export const services = ${JSON.stringify(services, null, 2)};\n`,
+	);
+	await copyFiles(
+		projectServicesPath,
+		path.join(projectBuildPath, 'services'),
 	);
 }
 
