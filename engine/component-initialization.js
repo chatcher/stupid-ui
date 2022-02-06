@@ -81,32 +81,8 @@ function initializeTemplateIterations(element) {
 	const iterations = Array.from(element.querySelectorAll('[for-each]'));
 
 	if (iterations.length) {
-		iterations.forEach((iteration, index) => {
-			const itemName = iteration.getAttribute('for-each');
-			const listName = iteration.getAttribute('#in');
-			const template = iteration.innerHTML;
-
-			if (listName in element.controller) {
-				const list = Array.from(element.controller[listName]);
-
-				list.forEach((item) => {
-					const injection = iteration.cloneNode(true);
-					injection.removeAttribute('for-each');
-					injection.removeAttribute('#in');
-
-					injection.controller = {};
-					injection.controller[itemName] = item;
-
-					initializeTemplate(injection, template);
-
-					iteration.insertAdjacentElement('beforebegin', injection);
-				});
-
-				// TODO: we actually need to preserve the original node
-				iteration.remove();
-			} else {
-				console.error('Property not found for iteration:', listName);
-			}
+		iterations.forEach((iteration) => {
+			initializeTemplateIteration(element, iteration);
 		});
 	}
 }
@@ -182,6 +158,84 @@ function getBindingReplacementSlot(element, unsafeExpression) {
 	}
 
 	return `{{${expression}}}`;
+}
+
+function initializeTemplateIteration(element, iteration) {
+	const parent = iteration.parentElement;
+	const itemName = iteration.getAttribute('for-each');
+	const listName = iteration.getAttribute('#in');
+	const template = iteration.innerHTML;
+
+	if (!(listName in element.controller)) {
+		console.error('Property not found for iteration:', listName);
+		return;
+	}
+
+	const slot = document.createElement('slot');
+	slot.name = [
+		element.componentId,
+		listName,
+		Math.random().toString(16).substr(2, 6),
+	].join('-');
+
+	iteration.replaceWith(slot);
+	iteration.removeAttribute('for-each');
+	iteration.removeAttribute('#in');
+	iteration.setAttribute('iteration-group', slot.name);
+
+	const original = Object.getOwnPropertyDescriptor(element.controller, listName);
+
+	console.assert(original.get, `Expected ${listName} to have a getter`);
+	console.assert(original.set, `Expected ${listName} to have a setter`);
+
+	setProxy();
+	setContent();
+
+	function setProxy() {
+		const proxy = new Proxy(original.get(), {
+			get: (self, prop) => {
+				return self[prop];
+			},
+			set: (self, prop, value) => {
+				self[prop] = value;
+				setContent();
+				return true;
+			},
+		});
+
+		Object.defineProperty(element.controller, listName, {
+			get: () => proxy,
+			set: (value) => {
+				original.set(value);
+				setProxy();
+			},
+		});
+	}
+
+	function setContent() {
+		Array.from(
+			parent.querySelectorAll(`[iteration-group="${slot.name}"]`)
+		).forEach((removal) => removal.remove());
+		// let removal = headNode.nextSibling;
+
+		// while (removal) {
+		// 	removal.remove();
+		// 	removal = removal.nextSibling === tailNode ? null : removal.nextSibling;
+		// }
+
+		original.get().forEach((item) => {
+			const injection = iteration.cloneNode(true);
+
+			injection.setAttribute('slot', slot.name);
+			injection.controller = {};
+			injection.controller[itemName] = item;
+
+			initializeTemplate(injection, template);
+
+			slot.before(injection);
+		});
+	}
+
 }
 
 function executeTemplateExpression(element, expression) {

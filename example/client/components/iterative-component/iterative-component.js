@@ -4,6 +4,11 @@ export class IterativeComponentController extends StupidBaseComponent {
 	list = [
 		'one',
 		'two',
-		'three',
 	];
+
+	onInit() {
+		setTimeout(() => this.list.push('three'), 2000);
+		setTimeout(() => this.list.push('four'), 4000);
+		setTimeout(() => this.list.push('five'), 6000);
+	}
 }

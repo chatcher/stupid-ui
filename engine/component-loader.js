@@ -86,7 +86,7 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 
 					this.context = context;
 					this.template = template;
-					this.componentId = `${context.name}-${Math.random().toString(16).substr(2)}`;
+					this.componentId = `${context.name}-${Math.random().toString(16).substr(2, 6)}`;
 					this.controller = Controller ? new Controller(this) : {};
 					this.slottedContent = this.innerHTML;
 					this.innerHTML = '';
