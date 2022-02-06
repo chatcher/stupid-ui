@@ -1,10 +1,6 @@
 import { StupidBaseComponent } from '/engine/components/stupid-base-component.js';
 
 export class ConditionalComponentController extends StupidBaseComponent {
-	constructor(element) {
-		super(element);
-	}
-
 	value = 0;
 
 	onInit() {

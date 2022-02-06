@@ -30,7 +30,7 @@ export class WhatTimeIsItController extends StupidBaseComponent {
 	}
 
 	boop() {
-		const date = new Date()
+		const date = new Date();
 		this.data = [
 			date.getHours(),
 			date.getMinutes(),
