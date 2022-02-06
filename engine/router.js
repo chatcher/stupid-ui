@@ -1,11 +1,11 @@
 import { routes as engineRoutes } from './routes.js';
 import { routes as projectRoutes } from '../routes.js';
-import { setupStupidComponentAutoloader } from './component-loader.js'
+import { setupStupidComponentAutoloader } from './component-loader.js';
 
 export class StupidRouterView extends HTMLElement {
 	constructor(router) {
 		super();
-		this.innerHTML = `<p>Loading...</p>`;
+		this.innerHTML = '<p>Loading...</p>';
 		this.router = router;
 		this.hijackAnchorClicks();
 	}
@@ -47,21 +47,21 @@ class EngineRouter {
 
 		if (this.routes[routePath]) {
 			this.updateRoute();
-		} else if (!/errors/.test(routePath)) {
+		} else if (/errors/.test(routePath)) {
+			console.log('invalid error route');
+		} else {
 			console.log('i dunno that route (goto 404)');
 			this.changeRoute('/errors/404');
-		} else {
-			console.log('invalid error route');
 		}
 
-		window.addEventListener('popstate', (event) => {
+		window.addEventListener('popstate', () => {
 			this.updateRoute();
 		});
 	}
 
 	changeRoute(newRoute) {
 		const oldRoute = location.pathname;
-		history.pushState({ oldRoute: oldRoute }, 'Loading...' , newRoute);
+		history.pushState({ oldRoute }, 'Loading...', newRoute);
 		this.updateRoute();
 	}
 
