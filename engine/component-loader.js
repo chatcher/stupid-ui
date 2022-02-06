@@ -72,10 +72,6 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 			template,
 			Controller,
 		]) => {
-			const closure = {
-				context,
-			};
-
 			class StupidComponent extends HTMLElement {
 				children = [];
 

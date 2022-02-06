@@ -26,6 +26,7 @@ export class StupidBaseComponent {
 		if (!this.$socket) {
 			this.$socket = document.createComment(this.$element.componentId);
 		}
+
 		this.$element.replaceWith(this.$socket);
 	}
 
