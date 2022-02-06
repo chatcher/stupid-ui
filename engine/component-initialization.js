@@ -17,7 +17,7 @@ export function initializeTemplate(element, template) {
 	}
 }
 
-////////////////////////////////////////////////////////////
+// // // // // // // // // // // // // // // // // // // //
 
 function notifyParentComponent(element) {
 	element.dispatchEvent(new Event('stupid-component-created', { bubbles: true }));
@@ -33,7 +33,7 @@ function listenForChildComponents(element) {
 		bindDataToChild(element, child);
 	});
 
-	element.addEventListener('stupid-component-removed', () => {
+	element.addEventListener('stupid-component-removed', (event) => {
 		event.stopPropagation();
 		const child = event.target;
 		console.warn(`StupidComponent<${element.context.name}>::child-detached`, child, { child });
@@ -95,7 +95,7 @@ function populateTemplate(element) {
 	});
 }
 
-////////////////////////////////////////////////////////////
+// // // // // // // // // // // // // // // // // // // //
 
 function watchChildEvents(element, child) {
 	Array.from(child.attributes)
@@ -134,7 +134,7 @@ function bindDataToChild(element, child) {
 				child.controller[propName] = element.controller[expression];
 			} else try {
 				// TODO: security on eval
-				const result = eval(`element.controller.${expression}`)
+				const result = eval(`element.controller.${expression}`);
 				child.controller[propName] = result;
 			} catch (error) {
 				console.error('unsupported binding expression', expression);
@@ -176,7 +176,7 @@ function initializeTemplateIteration(element, iteration) {
 	slot.name = [
 		element.componentId,
 		listName,
-		Math.random().toString(16).substr(2, 6)
+		Math.random().toString(16).substr(2, 6),
 	].join('-');
 
 	iteration.replaceWith(slot);
