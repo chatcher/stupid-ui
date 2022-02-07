@@ -1,6 +1,9 @@
 import { StupidBaseComponent } from '/engine/components/stupid-base-component.js';
 
 export class ServiceBasedComponentController extends StupidBaseComponent {
-	onInit() {
+	list = null;
+
+	async onInit() {
+		this.list = await this.$services.someService.getSomeData();
 	}
 }
