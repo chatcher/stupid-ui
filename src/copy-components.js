@@ -12,6 +12,7 @@ const loadComponents = async (rootPath, heirarchy = []) => {
 
 	await Promise.all(contents.map(async (fileName) => {
 		const filePath = path.join(fullPath, fileName);
+
 		if (await directoryExists(filePath)) {
 			Object.assign(components, await loadComponents(rootPath, [...heirarchy, fileName]));
 		} else if (/\.(html|js)$/.test(fileName)) {
