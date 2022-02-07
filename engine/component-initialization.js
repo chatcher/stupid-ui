@@ -1,4 +1,4 @@
-module.exports.loadTemplate = async (context) => {
+export async function loadTemplate(context) {
 	if (!context.template) {
 		console.info(`No template declared for ${context.name}.`);
 		return null;
@@ -13,9 +13,9 @@ module.exports.loadTemplate = async (context) => {
 	}
 
 	return templateResponse.text();
-};
+}
 
-module.exports.loadController = async (context) => {
+export async function loadController(context) {
 	if (!context.controller) {
 		console.info(`No controller declared for ${context.name}.`);
 		return null;
@@ -44,7 +44,7 @@ module.exports.loadController = async (context) => {
 		console.warn(error);
 		return null;
 	}
-};
+}
 
 export function connectHeirarchy(element) {
 	notifyParentComponent(element);
