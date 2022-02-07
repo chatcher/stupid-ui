@@ -1,12 +1,10 @@
 export class StupidBaseComponent {
 	onInit() {}
 
-	constructor(element, template) {
+	constructor(element, router, services) {
 		this.$element = element;
-
-		if (template) {
-			this.$template = template;
-		}
+		this.$router = router;
+		this.$services = services;
 	}
 
 	$emit(name, payload) {

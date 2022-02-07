@@ -14,6 +14,7 @@ import {
 	connectHeirarchy,
 	initializeTemplate,
 } from './component-initialization.js';
+import { services } from './service-loader.js';
 
 const componentCache = {};
 
@@ -37,7 +38,7 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 					this.context = context;
 					this.template = template;
 					this.componentId = `${context.name}-${Math.random().toString(16).substr(2, 6)}`;
-					this.controller = Controller ? new Controller(this) : {};
+					this.controller = Controller ? new Controller(this, router, services) : {};
 					this.slottedContent = this.innerHTML;
 					this.innerHTML = '';
 				}

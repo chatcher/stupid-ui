@@ -24,7 +24,7 @@ const loadServices = async (rootPath, heirarchy = []) => {
 			const serviceFile = path.join('/services', servicePath, fileName);
 
 			const service = {
-				name,
+				name: name.replace(/\b(\w)/g, (_, ch) => ch.toUpperCase()),
 				files: [],
 			};
 
