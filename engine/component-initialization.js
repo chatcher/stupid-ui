@@ -1,3 +1,51 @@
+module.exports.loadTemplate = async (context) => {
+	if (!context.template) {
+		console.info(`No template declared for ${context.name}.`);
+		return null;
+	}
+
+	const templateResponse = await fetch(context.template);
+
+	if (!templateResponse.ok) {
+		console.error(`Error loading ${context.name} template.`);
+		console.warn(templateResponse);
+		return null;
+	}
+
+	return templateResponse.text();
+};
+
+module.exports.loadController = async (context) => {
+	if (!context.controller) {
+		console.info(`No controller declared for ${context.name}.`);
+		return null;
+	}
+
+	try {
+		const controllerModule = await import(context.controller);
+		const controllerClassName = `${context.name.replace(
+			/(?:\b|\W)(\w)/g,
+			(_, letter) => letter.toUpperCase()
+		)}Controller`;
+
+		if (!controllerModule) {
+			console.error(`Empty ${context.name} module.`);
+			return null;
+		}
+
+		if (!controllerModule[controllerClassName]) {
+			console.warn(`No controller exported from ${context.name} module.`);
+			return null;
+		}
+
+		return controllerModule[controllerClassName];
+	} catch (error) {
+		console.error(`Error loading ${context.name} module.`);
+		console.warn(error);
+		return null;
+	}
+};
+
 export function connectHeirarchy(element) {
 	notifyParentComponent(element);
 	listenForChildComponents(element);
