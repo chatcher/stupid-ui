@@ -5,9 +5,8 @@ const { directoryExists, copyFiles, check } = require('./utilities');
 const loadComponents = async (rootPath, heirarchy = []) => {
 	const components = {};
 
-	const componentName = path.join(...heirarchy);
-	const componentPath = path.join('/components', componentName);
-	const fullPath = path.join(rootPath, componentName);
+	const componentPath = path.join(...heirarchy);
+	const fullPath = path.join(rootPath, componentPath);
 	const contents = await fs.readdir(fullPath);
 
 	await Promise.all(contents.map(async (fileName) => {
@@ -17,17 +16,15 @@ const loadComponents = async (rootPath, heirarchy = []) => {
 			Object.assign(components, await loadComponents(rootPath, [...heirarchy, fileName]));
 		} else if (/\.(html|js)$/.test(fileName)) {
 			const baseFilePath = filePath.replace(/\.(html|js)$/, '');
-
 			const fileBaseName = fileName.replace(/\.(html|js)$/, '');
 
-			const name = componentName.replace(/^\//, '').replace(/\W+/g, '-').toLowerCase();
-
 			const templatePath = `${baseFilePath}.html`;
-			const templateFile = path.join(componentPath, `${fileBaseName}.html`);
+			const templateFile = path.join('/components', componentPath, `${fileBaseName}.html`);
 
 			const controllerPath = `${baseFilePath}.js`;
-			const controllerFile = path.join(componentPath, `${fileBaseName}.js`);
+			const controllerFile = path.join('/components', componentPath, `${fileBaseName}.js`);
 
+			const name = componentPath.replace(/^\//, '').replace(/\W+/g, '-').toLowerCase();
 			const component = {
 				name,
 				files: [],
@@ -36,7 +33,7 @@ const loadComponents = async (rootPath, heirarchy = []) => {
 			component.template = await check(component, templatePath, templateFile);
 			component.controller = await check(component, controllerPath, controllerFile);
 
-			components[componentName] = component;
+			components[name] = component;
 		}
 	}));
 

@@ -6,7 +6,6 @@ const loadRoutes = async (rootPath, heirarchy = []) => {
 	const routes = {};
 
 	const routeName = path.join('/', ...heirarchy);
-	const routePath = path.join('/routes', routeName);
 	const fullPath = path.join(rootPath, routeName);
 	const contents = await fs.readdir(fullPath);
 
@@ -17,17 +16,16 @@ const loadRoutes = async (rootPath, heirarchy = []) => {
 			Object.assign(routes, await loadRoutes(rootPath, [...heirarchy, fileName]));
 		} else if (/\.(html|js)$/.test(fileName)) {
 			const baseFilePath = filePath.replace(/\.(html|js)$/, '');
-
 			const fileBaseName = fileName.replace(/\.(html|js)$/, '');
 
 			const baseName = routeName.replace(/^\//, '').replace(/\W+/g, '-').toLowerCase();
 			const name = `${baseName || 'root'}-view`;
 
 			const templatePath = `${baseFilePath}.html`;
-			const templateFile = path.join(routePath, `${fileBaseName}.html`);
+			const templateFile = path.join('/routes', routeName, `${fileBaseName}.html`);
 
 			const controllerPath = `${baseFilePath}.js`;
-			const controllerFile = path.join(routePath, `${fileBaseName}.js`);
+			const controllerFile = path.join('/routes', routeName, `${fileBaseName}.js`);
 
 			const route = {
 				path: routeName,

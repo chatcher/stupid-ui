@@ -5,34 +5,32 @@ const { directoryExists, copyFiles, check } = require('./utilities');
 const loadServices = async (rootPath, heirarchy = []) => {
 	const services = {};
 
-	const serviceName = path.join(...heirarchy);
-	const servicePath = path.join('/services', serviceName);
-	const fullPath = path.join(rootPath, serviceName);
-	const contents = await fs.readdir(fullPath);
+	const servicePath = path.join(...heirarchy);
+	const searchPath = path.join(rootPath, servicePath);
+	const contents = await fs.readdir(searchPath);
 
 	await Promise.all(contents.map(async (fileName) => {
-		const filePath = path.join(fullPath, fileName);
+		const sourceFilePath = path.join(searchPath, fileName);
 
-		if (await directoryExists(filePath)) {
+		if (await directoryExists(sourceFilePath)) {
 			Object.assign(services, await loadServices(rootPath, [...heirarchy, fileName]));
 		} else if (/\.js$/.test(fileName)) {
-			const baseFilePath = filePath.replace(/\.js$/, '');
+			const name = fileName
+				.replace(/^\/|\.js$/g, '')
+				.replace(/\W+/g, '-')
+				.toLowerCase()
+				.replace(/-(\w)/g, (_, ch) => ch.toUpperCase());
 
-			const fileBaseName = fileName.replace(/\.js$/, '');
-
-			const name = serviceName.replace(/^\//, '').replace(/\W+/g, '-').toLowerCase();
-
-			const controllerPath = `${baseFilePath}.js`;
-			const controllerFile = path.join(servicePath, `${fileBaseName}.js`);
+			const serviceFile = path.join('/services', servicePath, fileName);
 
 			const service = {
 				name,
 				files: [],
 			};
 
-			service.service = await check(service, controllerPath, controllerFile);
+			service.service = await check(service, sourceFilePath, serviceFile);
 
-			services[serviceName] = service;
+			services[name] = service;
 		}
 	}));
 
