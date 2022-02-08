@@ -11,7 +11,7 @@ async function importService(serviceName) {
 			const serviceModule = await import(config.service);
 			const service = new serviceModule[config.name]();
 
-			serviceCache[serviceName] = service;
+			Reflect.set(serviceCache, serviceName, service);
 
 			resolve(service);
 		});

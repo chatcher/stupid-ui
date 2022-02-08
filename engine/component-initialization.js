@@ -179,11 +179,11 @@ function bindDataToChild(element, child) {
 			const propName = attribute.name.replace(/-(\w)/g, (_, ch) => ch.toUpperCase()).slice(1);
 			const expression = attribute.value.trim();
 			if (expression in element.controller) {
-				child.controller[propName] = element.controller[expression];
+				Reflect.set(child.controller, propName, element.controller[expression]);
 			} else try {
 				// TODO: security on eval
 				const result = eval(`element.controller.${expression}`);
-				child.controller[propName] = result;
+				Reflect.set(child.controller, propName, result);
 			} catch (error) {
 				console.error('unsupported binding expression', expression);
 				console.error(error);
@@ -237,7 +237,7 @@ function initializeTemplateIteration(element, iteration) {
 	function setProxy(list) {
 		const proxy = list && new Proxy(list, {
 			set: (self, prop, value) => {
-				self[prop] = value;
+				Reflect.set(self, prop, value);
 				setContent(self);
 				return true;
 			},
@@ -263,8 +263,8 @@ function initializeTemplateIteration(element, iteration) {
 		list.forEach((item) => {
 			const injection = iteration.cloneNode(true);
 
-			injection.controller = {};
-			injection.controller[itemName] = item;
+			injection.controller = {}; // TODO: should use the stupid base component controller
+			Reflect.set(injection.controller, itemName, item);
 
 			initializeTemplate(injection, template);
 
