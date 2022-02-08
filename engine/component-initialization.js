@@ -219,7 +219,6 @@ function initializeTemplateIteration(element, iteration) {
 	const itemName = iteration.getAttribute('for-each');
 	const template = iteration.innerHTML;
 	const slot = document.createElement('slot');
-	const dataSource = Object.getOwnPropertyDescriptor(element.controller, listName);
 
 	slot.name = [
 		element.componentId,
@@ -232,15 +231,14 @@ function initializeTemplateIteration(element, iteration) {
 	iteration.removeAttribute('#in');
 	iteration.setAttribute('iteration-group', slot.name);
 
-	setProxy();
-	setContent();
+	setProxy(element.controller[listName]);
+	setContent(element.controller[listName]);
 
-	function setProxy() {
-		const proxy = new Proxy(dataSource.get(), {
-			get: (self, prop) => self[prop],
+	function setProxy(list) {
+		const proxy = list && new Proxy(list, {
 			set: (self, prop, value) => {
 				self[prop] = value;
-				setContent();
+				setContent(self);
 				return true;
 			},
 		});
@@ -248,18 +246,21 @@ function initializeTemplateIteration(element, iteration) {
 		Object.defineProperty(element.controller, listName, {
 			get: () => proxy,
 			set: (value) => {
-				dataSource.set(value);
-				setProxy();
+				setProxy(value);
 			},
 		});
 	}
 
-	function setContent() {
+	function setContent(list) {
 		Array.from(
 			parent.querySelectorAll(`[iteration-group="${slot.name}"]`)
 		).forEach((removal) => removal.remove());
 
-		dataSource.get().forEach((item) => {
+		if (!list || !list.length) {
+			return;
+		}
+
+		list.forEach((item) => {
 			const injection = iteration.cloneNode(true);
 
 			injection.controller = {};
