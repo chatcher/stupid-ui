@@ -5,6 +5,7 @@ const promises = {};
 
 async function importService(serviceName) {
 	if (!promises[serviceName]) {
+		// eslint-disable-next-line no-async-promise-executor
 		promises[serviceName] = new Promise(async (resolve) => {
 			const config = projectServices[serviceName];
 			const serviceModule = await import(config.service);
@@ -20,14 +21,12 @@ async function importService(serviceName) {
 }
 
 function loadServiceMethod(serviceName, methodName) {
-	const serviceMethod = `${serviceName}::${methodName}`;
-
 	importService(serviceName);
 
 	return async (...args) => {
 		await promises[serviceName];
 		return serviceCache[serviceName][methodName](...args);
-	}
+	};
 }
 
 const serviceMethodHandler = {
@@ -38,13 +37,13 @@ const serviceMethodHandler = {
 
 		return service[methodName];
 	},
-}
+};
 
 const serviceProxyHandler = {
 	get(serviceCache, serviceName) {
 		if (!(serviceName in serviceCache)) {
 			serviceCache[serviceName] = new Proxy({
-				'$name': serviceName,
+				$name: serviceName,
 			}, serviceMethodHandler);
 		}
 

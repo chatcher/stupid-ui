@@ -16,6 +16,7 @@ module.exports = {
 		'build/**',
 	],
 	'rules': {
+		'arrow-parens': ['error', 'always'],
 		'capitalized-comments': 'off',
 		'object-curly-spacing': [
 			'error',
