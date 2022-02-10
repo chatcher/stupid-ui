@@ -253,26 +253,8 @@ function initializeTemplateIteration(element, iteration) {
 	iteration.removeAttribute('#in');
 	iteration.setAttribute('iteration-group', slot.name);
 
-	setProxy(element.controller[listName], setContent);
+	setProxy(element.controller, listName, element.controller[listName], setContent);
 	setContent(element.controller[listName]);
-
-	function setProxy(list, callback) {
-		const proxy = list && new Proxy(list, {
-			set: (self, prop, value) => {
-				Reflect.set(self, prop, value);
-				// setContent(self);
-				callback(self);
-				return true;
-			},
-		});
-
-		Object.defineProperty(element.controller, listName, {
-			get: () => proxy,
-			set: (value) => {
-				setProxy(value, callback);
-			},
-		});
-	}
 
 	function setContent(list) {
 		Array.from(
@@ -294,6 +276,23 @@ function initializeTemplateIteration(element, iteration) {
 			slot.before(injection);
 		});
 	}
+}
+
+function setProxy(controller, propName, value, callback) {
+	const proxy = value && new Proxy(value, {
+		set: (self, prop, value) => {
+			Reflect.set(self, prop, value);
+			callback(self);
+			return true;
+		},
+	});
+
+	Object.defineProperty(controller, propName, {
+		get: () => proxy,
+		set: (value) => {
+			setProxy(controller, propName, value, callback);
+		},
+	});
 }
 
 function executeTemplateExpression(element, expression) {
