@@ -56,7 +56,7 @@ export function initializeTemplate(element, template) {
 
 	if (template) {
 		bindTemplateSlots(element, template);
-		initializeTemplateIterations(element);
+		initializeTemplateLogic(element);
 		populateTemplate(element);
 	}
 
@@ -125,14 +125,16 @@ function bindTemplateSlots(element, template) {
 	element.innerHTML = templateParts.join('');
 }
 
-function initializeTemplateIterations(element) {
-	const iterations = Array.from(element.querySelectorAll('[for-each]'));
+function initializeTemplateLogic(element) {
+	const conditionals = Array.from(element.querySelectorAll('[if]'));
+	conditionals.forEach((conditional) => {
+		initializeTemplateConditional(element, conditional);
+	});
 
-	if (iterations.length) {
-		iterations.forEach((iteration) => {
-			initializeTemplateIteration(element, iteration);
-		});
-	}
+	const iterations = Array.from(element.querySelectorAll('[for-each]'));
+	iterations.forEach((iteration) => {
+		initializeTemplateIteration(element, iteration);
+	});
 }
 
 function populateTemplate(element) {
@@ -208,6 +210,26 @@ function getBindingReplacementSlot(element, unsafeExpression) {
 	return `{{${expression}}}`;
 }
 
+function initializeTemplateConditional(element, conditional) {
+	const expression = conditional.getAttribute('if');
+	const controller = element.controller;
+	const properties = Object.keys(controller)
+		.filter((property) => /^[a-z]/.test(property));
+	const methodFactory = new Function(`return ({${properties.join(',')}}) => ${expression};`)
+	const method = methodFactory();
+
+	const slot = document.createElement('slot');
+	slot.name = [
+		element.componentId,
+		Math.random().toString(16).substr(2, 6),
+	];
+	conditional.replaceWith(slot);
+	conditional.removeAttribute('if');
+
+	const result = method(controller);
+	console.log({ result });
+}
+
 function initializeTemplateIteration(element, iteration) {
 	if (!(iteration.getAttribute('#in') in element.controller)) {
 		console.error('Property not found for iteration:', iteration.getAttribute('#in'));
@@ -231,14 +253,15 @@ function initializeTemplateIteration(element, iteration) {
 	iteration.removeAttribute('#in');
 	iteration.setAttribute('iteration-group', slot.name);
 
-	setProxy(element.controller[listName]);
+	setProxy(element.controller[listName], setContent);
 	setContent(element.controller[listName]);
 
-	function setProxy(list) {
+	function setProxy(list, callback) {
 		const proxy = list && new Proxy(list, {
 			set: (self, prop, value) => {
 				Reflect.set(self, prop, value);
-				setContent(self);
+				// setContent(self);
+				callback(self);
 				return true;
 			},
 		});
@@ -246,7 +269,7 @@ function initializeTemplateIteration(element, iteration) {
 		Object.defineProperty(element.controller, listName, {
 			get: () => proxy,
 			set: (value) => {
-				setProxy(value);
+				setProxy(value, callback);
 			},
 		});
 	}
