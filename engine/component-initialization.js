@@ -91,24 +91,20 @@ function listenForChildComponents(element) {
 }
 
 function convertPropertiesToWatchedProperties(element) {
-	Object.keys(element.controller)
+	const controller = element.controller;
+
+	if (!controller.$watch) {
+		if (element.componentId) console.warn(element.componentId, 'is not watchable?');
+		return;
+	}
+
+	Object.keys(controller)
 		.filter((prop) => /^\w/.test(prop))
 		.forEach((prop) => {
-			let _value = element.getAttribute(prop) || element.controller[prop] || null;
-
-			Object.defineProperty(
-				element.controller,
-				prop,
-				{
-					enumerable: true,
-					get: () => _value,
-					set: (value) => {
-						_value = value;
-						populateTemplate(element);
-						element.children.forEach((child) => bindDataToChild(element, child));
-					},
-				}
-			);
+			controller.$watch(prop, () => {
+				populateTemplate(element)
+				element.children.forEach((child) => bindDataToChild(element, child));
+			});
 		});
 }
 
@@ -215,19 +211,41 @@ function initializeTemplateConditional(element, conditional) {
 	const controller = element.controller;
 	const properties = Object.keys(controller)
 		.filter((property) => /^[a-z]/.test(property));
-	const methodFactory = new Function(`return ({${properties.join(',')}}) => ${expression};`)
-	const method = methodFactory();
-
 	const slot = document.createElement('slot');
 	slot.name = [
 		element.componentId,
 		Math.random().toString(16).substr(2, 6),
-	];
-	conditional.replaceWith(slot);
-	conditional.removeAttribute('if');
+	].join('-');
 
-	const result = method(controller);
-	console.log({ result });
+	const propsICareAbout = [];
+	const proxyHandler = {
+		get: (self, prop) => {
+			if (!propsICareAbout.includes(prop)) {
+				controller.$watch(prop, recalculate);
+			}
+			propsICareAbout.push(prop);
+			console.log('proxy get', prop, '=', self[prop]);
+			return Reflect.get(self, prop);
+		},
+	}
+	const controllerProxy = new Proxy(controller, proxyHandler);
+
+	const methodFactory = new Function(`return ({${properties.join(',')}}) => ${expression};`)
+	const method = methodFactory();
+
+	setContent(method(controllerProxy));
+
+	function recalculate() {
+		setContent(method(controllerProxy));
+	}
+
+	function setContent(show) {
+		if (show) {
+			slot.replaceWith(conditional);
+		} else {
+			conditional.replaceWith(slot);
+		}
+	}
 }
 
 function initializeTemplateIteration(element, iteration) {
@@ -255,25 +273,10 @@ function initializeTemplateIteration(element, iteration) {
 
 	const controller = element.controller;
 
-	setProxy(controller[listName], setContent);
-	setContent(controller[listName]);
-
-	function setProxy(value, callback) {
-		const proxy = value && new Proxy(value, {
-			set: (self, prop, value) => {
-				Reflect.set(self, prop, value);
-				callback(self);
-				return true;
-			},
-		});
-
-		Object.defineProperty(controller, listName, {
-			get: () => proxy,
-			set: (value) => {
-				setProxy(value, callback);
-			},
-		});
-	}
+	controller.$watch(listName, (value) => {
+		console.log('watcher triggered', value);
+		setContent(value);
+	});
 
 	function setContent(list) {
 		Array.from(

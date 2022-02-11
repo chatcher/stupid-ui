@@ -1,6 +1,8 @@
 <div>
 	<p>Service-based Component</p>
 
+	<p if="!list">...</p>
+
 	<ul>
 		<li for-each="value" #in="list">{{ value }}</li>
 	</ul>

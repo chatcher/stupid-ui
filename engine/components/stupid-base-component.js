@@ -17,7 +17,8 @@ const handler = (callback) => ({
 });
 
 function wrap(object, callback) {
-	return object && new Proxy(object, handler(callback));
+	const valid = object && typeof object === 'object';
+	return valid ? new Proxy(object, handler(callback)) : object;
 }
 
 export class StupidBaseComponent {
