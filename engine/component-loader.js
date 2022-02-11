@@ -1,3 +1,5 @@
+import { StupidBaseComponent } from './components/stupid-base-component.js';
+
 // export class CustomComponent extends HTMLElement {
 // 	constructor() {
 // 		super();
@@ -18,7 +20,7 @@ import { services } from './service-loader.js';
 
 const componentCache = {};
 
-export const setupStupidComponentAutoloader = async (context, router) => {
+export const setupStupidComponentAutoloader = async (context, router, DefaultController = StupidBaseComponent) => {
 	if (!componentCache[context.name]) {
 		componentCache[context.name] = Promise.all([
 			loadTemplate(context),
@@ -38,7 +40,7 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 					this.context = context;
 					this.template = template;
 					this.componentId = `${context.name}-${Math.random().toString(16).substr(2, 6)}`;
-					this.controller = Controller ? new Controller(this, router, services) : {};
+					this.controller = Controller ? new Controller(this, router, services) : new DefaultController(this, router, services);
 					this.slottedContent = this.innerHTML;
 					this.innerHTML = '';
 				}
@@ -56,7 +58,7 @@ export const setupStupidComponentAutoloader = async (context, router) => {
 				}
 
 				disconnectedCallback() {
-					console.warn(`StupidComponent<${context.name}>::disconnect()`);
+					// console.warn(`StupidComponent<${context.name}>::disconnect()`);
 				}
 			}
 

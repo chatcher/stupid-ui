@@ -1,6 +1,7 @@
 import { routes as engineRoutes } from './routes.js';
 import { routes as projectRoutes } from '../routes.js';
 import { setupStupidComponentAutoloader } from './component-loader.js';
+import { StupidBaseRouteView } from './components/stupid-base-route-view.js';
 
 export class StupidRouterView extends HTMLElement {
 	constructor(router) {
@@ -27,7 +28,7 @@ export class StupidRouterView extends HTMLElement {
 		if (!context) throw new Error('Cannot load empty route');
 		if (!context.name) throw new Error('Cannot load unnamed route');
 		this.innerHTML = '';
-		await setupStupidComponentAutoloader(context, this.router);
+		await setupStupidComponentAutoloader(context, this.router, StupidBaseRouteView);
 		const routeView = document.createElement(context.name);
 		const controller = routeView.controller;
  		const beforeRouteEnter = controller.beforeRouteEnter()
