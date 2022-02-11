@@ -4,7 +4,7 @@ export class RootViewController extends StupidBaseRouteView {
 	someProp = 'RootViewController.someProp';
 
 	beforeRouteEnter() {
-		console.log('before route enter');
+		console.log('RootViewController::beforeRouteEnter() { return true }');
 		return true;
 	}
 
@@ -12,6 +12,6 @@ export class RootViewController extends StupidBaseRouteView {
 		if (event.message) {
 			this.someProp = event.message;
 		}
-		console.log({ something, event });
+		console.log('RootViewController::someMethod()', { something, event });
 	}
 }
