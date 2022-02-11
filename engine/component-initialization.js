@@ -146,28 +146,40 @@ function populateTemplate(element) {
 // // // // // // // // // // // // // // // // // // // //
 
 function watchChildEvents(element, child) {
+	const controller = element.controller;
+
 	Array.from(child.attributes)
 		.filter((attribute) => /^@/.test(attribute.name))
 		.forEach((attribute) => {
 			const eventName = attribute.name.slice(1);
-			const callbackExpression = attribute.value.trim();
-			console.debug(eventName, '->', callbackExpression);
+			const expression = attribute.value.trim();
 
-			if (typeof element.controller[callbackExpression] === 'function') {
+			if (typeof controller[expression] === 'function') {
 				child.addEventListener(eventName, (event) => {
 					event.stopPropagation();
 					const { payload } = event;
-					element.controller[callbackExpression](payload);
+					controller[expression](payload);
 				});
 			} else {
-				console.group(element.context.name);
-				console.log(element);
-				console.log({ element });
-				console.log(child);
-				console.log({ child });
-				console.error('unsupported callback expression');
-				console.log(callbackExpression);
-				console.groupEnd();
+				const controllerProxy = new Proxy(controller, {
+					get: (self, prop) => {
+						const value = Reflect.get(self, prop);
+						return typeof value === 'function'
+							? value.bind(self)
+							: value;
+					}
+				});
+				const properties = Reflect.ownKeys(Reflect.getPrototypeOf(controller))
+					.filter((name) => /^[a-z]/.test(name) && name != 'constructor');
+
+				const methodFactory = new Function(`return ({${properties.join(',')}}, $event) => (${expression});`);
+				const method = methodFactory();
+
+				child.addEventListener(eventName, (event) => {
+					event.stopPropagation();
+					const { payload } = event;
+					method(controllerProxy, payload);
+				});
 			}
 		});
 }
@@ -231,7 +243,7 @@ function initializeTemplateConditional(element, conditional) {
 	}
 	const controllerProxy = new Proxy(controller, proxyHandler);
 
-	const methodFactory = new Function(`return ({${properties.join(',')}}) => ${expression};`)
+	const methodFactory = new Function(`return ({${properties.join(',')}}) => (${expression});`)
 	const method = methodFactory();
 
 	setContent(method(controllerProxy));

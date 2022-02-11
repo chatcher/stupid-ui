@@ -8,7 +8,10 @@ export class RootViewController extends StupidBaseRouteView {
 		return true;
 	}
 
-	someMethod(event) {
-		console.log('RootViewController::someMethod()', { event });
+	someMethod(something, event) {
+		if (event.message) {
+			this.someProp = event.message;
+		}
+		console.log({ something, event });
 	}
 }
