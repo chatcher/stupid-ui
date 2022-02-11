@@ -26,8 +26,18 @@ export class StupidRouterView extends HTMLElement {
 	async loadRoute(context) {
 		if (!context) throw new Error('Cannot load empty route');
 		if (!context.name) throw new Error('Cannot load unnamed route');
-		this.innerHTML = `<${context.name} />`;
-		return setupStupidComponentAutoloader(context, this.router);
+		this.innerHTML = '';
+		await setupStupidComponentAutoloader(context, this.router);
+		const routeView = document.createElement(context.name);
+		const controller = routeView.controller;
+ 		const beforeRouteEnter = controller.beforeRouteEnter()
+		if (beforeRouteEnter === true) {
+			this.appendChild(routeView);
+		} else if (beforeRouteEnter) {
+			this.innerHTML = `<p>That route says ${JSON.stringify(beforeRouteEnter)}</p>`;
+		} else {
+			this.innerHTML = `<p>That route says it shouldn't be loaded.</p>`;
+		}
 	}
 }
 

@@ -224,7 +224,6 @@ function initializeTemplateConditional(element, conditional) {
 				controller.$watch(prop, recalculate);
 			}
 			propsICareAbout.push(prop);
-			console.log('proxy get', prop, '=', self[prop]);
 			return Reflect.get(self, prop);
 		},
 	}
@@ -274,7 +273,6 @@ function initializeTemplateIteration(element, iteration) {
 	const controller = element.controller;
 
 	controller.$watch(listName, (value) => {
-		console.log('watcher triggered', value);
 		setContent(value);
 	});
 
