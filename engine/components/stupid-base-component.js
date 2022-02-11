@@ -1,3 +1,25 @@
+const isProxy = Symbol('is-proxy');
+
+const handler = (callback) => ({
+	get: (self, prop) => {
+		const value = self[prop];
+		if (value && typeof value === 'object' && !value[isProxy]) {
+			self[prop] = wrap(self[prop]);
+			return self[prop];
+		}
+		return self[prop];
+	},
+	set: (self, prop, value) => {
+		self[prop] = value;
+		callback();
+		return true;
+	},
+});
+
+function wrap(object, callback) {
+	return object && new Proxy(object, handler(callback));
+}
+
 export class StupidBaseComponent {
 	onInit() {}
 
@@ -5,6 +27,40 @@ export class StupidBaseComponent {
 		this.$element = element;
 		this.$router = router;
 		this.$services = services;
+	}
+
+	$watchers = {}; // { <propName>: [callback] }
+	$watch(name, callback) {
+		if (!this.$watchers[name]) {
+			let _value = wrap(this[name], () => {
+				this.$emitWatcher(name);
+			});
+			Object.defineProperty(this, name, {
+				get: () => _value,
+				set: (value) => {
+					_value = wrap(value, () => {
+						this.$emitWatchers(name);
+					});
+					this.$emitWatchers(name);
+				},
+			});
+			this.$watchers[name] = [];
+		}
+
+		this.$watchers[name].push(callback);
+		return () => {
+			const index = this.$watchers[name].indexOf(callback);
+			console.assert(index >= 0, `Uh, so this is kinda weird. Someone call an unwatch handler for ${name}, but I couldn't find the original callback in the array.`);
+			this.$watchers[name].splice(index, 1);
+		}
+	}
+
+	$timeouts = {}
+	$emitWatchers(name) {
+		clearTimeout(this.$timeouts[name]);
+		this.$timeouts[name] = setTimeout(() => {
+			this.$watchers[name].forEach((callback) => callback(this[name]));
+		});
 	}
 
 	$emit(name, payload) {
