@@ -7,6 +7,7 @@ const handler = (callback) => ({
 			self[prop] = wrap(self[prop]);
 			return self[prop];
 		}
+
 		return self[prop];
 	},
 	set: (self, prop, value) => {
@@ -53,10 +54,10 @@ export class StupidBaseComponent {
 			const index = this.$watchers[name].indexOf(callback);
 			console.assert(index >= 0, `Uh, so this is kinda weird. Someone call an unwatch handler for ${name}, but I couldn't find the original callback in the array.`);
 			this.$watchers[name].splice(index, 1);
-		}
+		};
 	}
 
-	$timeouts = {}
+	$timeouts = {};
 	$emitWatchers(name) {
 		clearTimeout(this.$timeouts[name]);
 		this.$timeouts[name] = setTimeout(() => {

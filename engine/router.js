@@ -30,14 +30,14 @@ export class StupidRouterView extends HTMLElement {
 		this.innerHTML = '';
 		await setupStupidComponentAutoloader(context, this.router, StupidBaseRouteView);
 		const routeView = document.createElement(context.name);
-		const controller = routeView.controller;
- 		const beforeRouteEnter = controller.beforeRouteEnter()
+		const { controller } = routeView;
+		const beforeRouteEnter = controller.beforeRouteEnter();
 		if (beforeRouteEnter === true) {
 			this.appendChild(routeView);
 		} else if (beforeRouteEnter) {
 			this.innerHTML = `<p>That route says ${JSON.stringify(beforeRouteEnter)}</p>`;
 		} else {
-			this.innerHTML = `<p>That route says it shouldn't be loaded.</p>`;
+			this.innerHTML = '<p>That route says it shouldn\'t be loaded.</p>';
 		}
 	}
 }

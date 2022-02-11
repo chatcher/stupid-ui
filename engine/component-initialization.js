@@ -91,7 +91,7 @@ function listenForChildComponents(element) {
 }
 
 function convertPropertiesToWatchedProperties(element) {
-	const controller = element.controller;
+	const { controller } = element;
 
 	if (!controller.$watch) {
 		if (element.componentId) console.warn(element.componentId, 'is not watchable?');
@@ -101,10 +101,10 @@ function convertPropertiesToWatchedProperties(element) {
 	Object.keys(controller)
 		.filter((prop) => /^\w/.test(prop))
 		.forEach((prop) => {
-			let attribute = element.getAttribute(prop);
+			const attribute = element.getAttribute(prop);
 			if (attribute) element.controller[prop] = attribute;
 			controller.$watch(prop, () => {
-				populateTemplate(element)
+				populateTemplate(element);
 				element.children.forEach((child) => bindDataToChild(element, child));
 			});
 		});
@@ -146,7 +146,7 @@ function populateTemplate(element) {
 // // // // // // // // // // // // // // // // // // // //
 
 function watchChildEvents(element, child) {
-	const controller = element.controller;
+	const { controller } = element;
 
 	Array.from(child.attributes)
 		.filter((attribute) => /^@/.test(attribute.name))
@@ -167,10 +167,10 @@ function watchChildEvents(element, child) {
 						return typeof value === 'function'
 							? value.bind(self)
 							: value;
-					}
+					},
 				});
 				const properties = Reflect.ownKeys(Reflect.getPrototypeOf(controller))
-					.filter((name) => /^[a-z]/.test(name) && name != 'constructor');
+					.filter((name) => /^[a-z]/.test(name) && name !== 'constructor');
 
 				const methodFactory = new Function(`return ({${properties.join(',')}}, $event) => (${expression});`);
 				const method = methodFactory();
@@ -222,7 +222,7 @@ function getBindingReplacementSlot(element, unsafeExpression) {
 
 function initializeTemplateConditional(element, conditional) {
 	const expression = conditional.getAttribute('if');
-	const controller = element.controller;
+	const { controller } = element;
 	const properties = Object.keys(controller)
 		.filter((property) => /^[a-z]/.test(property));
 	const slot = document.createElement('slot');
@@ -237,13 +237,14 @@ function initializeTemplateConditional(element, conditional) {
 			if (!propsICareAbout.includes(prop)) {
 				controller.$watch(prop, recalculate);
 			}
+
 			propsICareAbout.push(prop);
 			return Reflect.get(self, prop);
 		},
-	}
+	};
 	const controllerProxy = new Proxy(controller, proxyHandler);
 
-	const methodFactory = new Function(`return ({${properties.join(',')}}) => (${expression});`)
+	const methodFactory = new Function(`return ({${properties.join(',')}}) => (${expression});`);
 	const method = methodFactory();
 
 	setContent(method(controllerProxy));
@@ -284,7 +285,7 @@ function initializeTemplateIteration(element, iteration) {
 	iteration.removeAttribute('#in');
 	iteration.setAttribute('iteration-group', slot.name);
 
-	const controller = element.controller;
+	const { controller } = element;
 
 	controller.$watch(listName, (value) => {
 		setContent(value);
