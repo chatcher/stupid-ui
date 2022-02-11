@@ -34,7 +34,7 @@ export class StupidBaseComponent {
 	$watch(name, callback) {
 		if (!this.$watchers[name]) {
 			let _value = wrap(this[name], () => {
-				this.$emitWatcher(name);
+				this.$emitWatchers(name);
 			});
 			Object.defineProperty(this, name, {
 				get: () => _value,
