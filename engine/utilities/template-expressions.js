@@ -29,9 +29,7 @@ export function getTemplateEventMethod(element, expression) {
 
 	const controllerProxy = new Proxy(controller, {
 		get: (self, prop) => {
-			console.log('proxy get', prop);
 			const value = Reflect.get(self, prop);
-			console.log(typeof value, value);
 			return typeof value === 'function'
 				? value.bind(self)
 				: value;
@@ -39,8 +37,6 @@ export function getTemplateEventMethod(element, expression) {
 	});
 	const properties = Reflect.ownKeys(Reflect.getPrototypeOf(controller))
 		.filter((name) => /^[a-z]/.test(name) && name !== 'constructor');
-
-	console.log({ properties });
 
 	const methodFactory = new Function(`return ({${properties.join(',')}}, $event) => (${expression});`);
 	const method = methodFactory();

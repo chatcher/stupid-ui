@@ -1,7 +1,6 @@
 import { getTemplateEventMethod } from './template-expressions.js';
 
 export function listenForNativeChildNodes(element) {
-	console.log('listenForNativeChildNodes()');
 	hijackFormSubmit(element);
 	hijackButtonClick(element);
 }
