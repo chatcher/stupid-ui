@@ -10,7 +10,6 @@ export function listenForNativeChildNodes(element) {
 
 function hijackFormSubmit(element) {
 	const forms = Array.from(element.querySelectorAll('form[\\@submit]'));
-	console.log({ forms });
 	forms.forEach((form) => {
 		const expression = form.getAttribute('@submit');
 		const submit = getTemplateEventMethod(element, expression);
@@ -27,7 +26,6 @@ function hijackFormSubmit(element) {
 
 function hijackButtonClick(element) {
 	const clickies = Array.from(element.querySelectorAll('[\\@click]'));
-	console.log({ clickies });
 	clickies.forEach((clickie) => {
 		const expression = clickie.getAttribute('@click');
 		const callback = getTemplateEventMethod(element, expression);
