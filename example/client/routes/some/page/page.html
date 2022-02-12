@@ -1,4 +1,24 @@
-<p>some page</p>
+<div>
+	<h2>Some Page</h2>
 
-<p><a href="/"> back </a>
-</p>
+	<service-based-component></service-based-component>
+
+	<iterative-component></iterative-component>
+
+	<conditional-component></conditional-component>
+
+	<p><what-time-is-it/></p>
+
+	<some-component
+		id="some-component-id"
+		class="some component class"
+		some-boolean
+		some-static="static value"
+		@some-event="someMethod('static', $event)"
+		#some-dynamic="someProp"
+	></some-component>
+
+	<a href="/some/other/route">Internal Link</a>
+
+	<a href="example.com">External Link</a>
+</div>
