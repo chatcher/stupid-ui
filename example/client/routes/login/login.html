@@ -1,0 +1,21 @@
+<form @submit="submit">
+	<fieldset>
+		<legend>Welcome back or whatever</legend>
+		<label>
+			<span>name</span>
+			<input type="text" name="username" />
+		</label>
+
+		<label>
+			<span>pass</span>
+			<input type="password" name="password" />
+		</label>
+
+		<input type="hidden" name="shhh" value="sneaky" />
+	</fieldset>
+
+	<footer>
+		<button type="submit">Log in</button>
+		<button type="button" @click="click">click</button>
+	</footer>
+</form>

@@ -1,3 +1,11 @@
+import {
+	getTemplateValueMethod,
+	getTemplateEventMethod,
+} from './utilities/template-expressions.js';
+import {
+	listenForNativeChildNodes,
+} from './utilities/native-elements-initialization.js';
+
 export async function loadTemplate(context) {
 	if (!context.template) {
 		console.info(`No template declared for ${context.name}.`);
@@ -56,6 +64,7 @@ export function initializeTemplate(element, template) {
 
 	if (template) {
 		bindTemplateSlots(element, template);
+		listenForNativeChildNodes(element);
 		initializeTemplateLogic(element);
 		populateTemplate(element);
 	}
@@ -153,38 +162,20 @@ function watchChildEvents(element, child) {
 		.forEach((attribute) => {
 			const eventName = attribute.name.slice(1);
 			const expression = attribute.value.trim();
+			const method = typeof controller[expression] === 'function'
+				? (payload) => controller[expression](payload)
+				: getTemplateEventMethod(element, expression);
 
-			if (typeof controller[expression] === 'function') {
-				child.addEventListener(eventName, (event) => {
-					event.stopPropagation();
-					const { payload } = event;
-					controller[expression](payload);
-				});
-			} else {
-				const controllerProxy = new Proxy(controller, {
-					get: (self, prop) => {
-						const value = Reflect.get(self, prop);
-						return typeof value === 'function'
-							? value.bind(self)
-							: value;
-					},
-				});
-				const properties = Reflect.ownKeys(Reflect.getPrototypeOf(controller))
-					.filter((name) => /^[a-z]/.test(name) && name !== 'constructor');
-
-				const methodFactory = new Function(`return ({${properties.join(',')}}, $event) => (${expression});`);
-				const method = methodFactory();
-
-				child.addEventListener(eventName, (event) => {
-					event.stopPropagation();
-					const { payload } = event;
-					method(controllerProxy, payload);
-				});
-			}
+			child.addEventListener(eventName, (event) => {
+				event.stopPropagation();
+				const { payload } = event;
+				method(payload);
+			});
 		});
 }
 
 function bindDataToChild(element, child) {
+	// todo
 	Array.from(child.attributes)
 		.filter((attribute) => /^#/.test(attribute.name))
 		.forEach((attribute) => {
@@ -222,35 +213,18 @@ function getBindingReplacementSlot(element, unsafeExpression) {
 
 function initializeTemplateConditional(element, conditional) {
 	const expression = conditional.getAttribute('if');
-	const { controller } = element;
-	const properties = Object.keys(controller)
-		.filter((property) => /^[a-z]/.test(property));
 	const slot = document.createElement('slot');
 	slot.name = [
 		element.componentId,
 		Math.random().toString(16).substr(2, 6),
 	].join('-');
 
-	const propsICareAbout = [];
-	const proxyHandler = {
-		get: (self, prop) => {
-			if (!propsICareAbout.includes(prop)) {
-				controller.$watch(prop, recalculate);
-			}
+	const method = getTemplateValueMethod(element, expression, recalculate);
 
-			propsICareAbout.push(prop);
-			return Reflect.get(self, prop);
-		},
-	};
-	const controllerProxy = new Proxy(controller, proxyHandler);
-
-	const methodFactory = new Function(`return ({${properties.join(',')}}) => (${expression});`);
-	const method = methodFactory();
-
-	setContent(method(controllerProxy));
+	setContent(method());
 
 	function recalculate() {
-		setContent(method(controllerProxy));
+		setContent(method());
 	}
 
 	function setContent(show) {
