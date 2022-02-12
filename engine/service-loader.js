@@ -9,7 +9,7 @@ async function importService(serviceName) {
 		promises[serviceName] = new Promise(async (resolve) => {
 			const config = projectServices[serviceName];
 			const serviceModule = await import(config.service);
-			const service = new serviceModule[config.name]();
+			const service = new serviceModule[config.name](services);
 
 			Reflect.set(serviceCache, serviceName, service);
 

@@ -3,7 +3,7 @@ import { StupidBaseRouteView } from '/engine/components/stupid-base-route-view.j
 export class SomePageViewController extends StupidBaseRouteView {
 	someProp = 'PageViewController.someProp';
 
-	beforeRouteEnter() {
+	async beforeRouteEnter() {
 		console.log('PageViewController::beforeRouteEnter() { return true }');
 		return true;
 	}

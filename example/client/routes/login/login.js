@@ -3,9 +3,6 @@ import { StupidBaseRouteView } from '/engine/components/stupid-base-route-view.j
 export class LoginViewController extends StupidBaseRouteView {
 	submit(data) {
 		console.log('LoginController::submit()', { data });
-	}
-
-	click(event) {
-		console.log('LoginController::click()', { event });
+		this.$services.authService.authenticate(data);
 	}
 }

@@ -3,9 +3,11 @@ import { StupidBaseRouteView } from '/engine/components/stupid-base-route-view.j
 export class RootViewController extends StupidBaseRouteView {
 	someProp = 'RootViewController.someProp';
 
-	beforeRouteEnter() {
+	async beforeRouteEnter() {
 		console.log('RootViewController::beforeRouteEnter() { return true }');
-		return true;
+		const isAuthenticated = await this.$services.authService.isAuthenticated();
+		console.log({ isAuthenticated });
+		return isAuthenticated ? '/some/page' : '/login';
 	}
 
 	someMethod(something, event) {
