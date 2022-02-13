@@ -4,5 +4,6 @@ export class LoginViewController extends StupidBaseRouteView {
 	submit(data) {
 		console.log('LoginController::submit()', { data });
 		this.$services.authService.authenticate(data);
+		this.$router.changeRoute('/');
 	}
 }

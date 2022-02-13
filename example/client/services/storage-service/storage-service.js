@@ -9,4 +9,8 @@ export class StorageService extends StupidBaseService {
 	set(key, value) {
 		localStorage.setItem(key, JSON.stringify(value));
 	}
+
+	remove(key, value) {
+		localStorage.removeItem(key);
+	}
 }

@@ -1,5 +1,9 @@
 export class StupidBaseService {
-	constructor(services) {
+	constructor({
+		router,
+		services,
+	}) {
+		this.$router = router;
 		this.$services = services;
 	}
 }

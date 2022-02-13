@@ -9,4 +9,12 @@ export class AuthService extends StupidBaseService {
 	async authenticate(credentials) {
 		this.$services.storageService.set('auth', credentials);
 	}
+
+	async logout() {
+		console.group('logout()');
+		this.$services.storageService.remove('auth');
+		const routeChange = this.$router.changeRoute('/')
+		console.log({ routeChange });
+		console.groupEnd();
+	}
 }

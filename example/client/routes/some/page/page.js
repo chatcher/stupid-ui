@@ -8,6 +8,10 @@ export class SomePageViewController extends StupidBaseRouteView {
 		return true;
 	}
 
+	async logout() {
+		return this.$services.authService.logout();
+	}
+
 	someMethod(something, event) {
 		if (event.message) {
 			this.someProp = event.message;
