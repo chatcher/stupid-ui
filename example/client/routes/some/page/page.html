@@ -1,4 +1,11 @@
-<div>
+<header>
+	header
+	<button @click="$services.authService.logout()">Log Out</button>
+</header>
+
+<sidebar>sidebar</sidebar>
+
+<main>
 	<h2>Some Page</h2>
 
 	<service-based-component></service-based-component>
@@ -21,4 +28,6 @@
 	<a href="/some/other/route">Internal Link</a>
 
 	<a href="example.com">External Link</a>
-</div>
+</main>
+
+<footer>footer</footer>
