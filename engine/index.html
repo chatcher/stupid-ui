@@ -1,35 +1,61 @@
 <html>
+
 <style>
 	body {
 		font-size: 16px;
+		margin: 0;
+	}
+	header {
+		background: orange;
+		height: 64px;
+		display: flex;
+		align-items: flex-start;
+		padding: 4px 6px;
+		justify-content: space-between;
+	}
+	}
+	form {
+		width: 20em;
+		margin: 0 auto;
+	}
+	form > footer {
+		display: flex;
+		justify-content: flex-end;
+		margin: 2px auto;
+		padding: 4px 16px;
+		max-width: 100%;
 	}
 	fieldset {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		margin-bottom: 4px;
 	}
 	fieldset > * + * {
 		margin-top: 4px;
-  }
-  label {
-  	display:  flex;
-  	flex-direction: column;
-  	width: 20em;
-  }
-  label > span {
-  	margin-left: 8px;
-  }
-  input {
-  	padding: 4px 6px;
-  }
+	}
+	label {
+		display:  flex;
+		flex-direction: column;
+		width: 100%;
+		max-width: 100%;
+	}
+	label > span {
+		margin-left: 8px;
+	}
+	input {
+		padding: 4px 6px;
+	}
 </style>
+
 <script
 	defer
 	type="module"
 	src="/engine/loader.js"
 ></script>
-<body>
-</body>
+
+<body></body>
+
 <script>
 	console.log('loading finished');
 </script>
