@@ -1,24 +1,16 @@
-<div>
-	<h2>Root View</h2>
+<header>
+	<slot name="header">Header</slot>
 
-	<service-based-component></service-based-component>
+	<button
+		x-if="$services.authService.isAuthenticated()"
+		@click="logout()"
+	>Log Out</button>
+</header>
 
-	<iterative-component></iterative-component>
+<sidebar>sidebar</sidebar>
 
-	<conditional-component></conditional-component>
+<main>
+	<route-view></route-view>
+</main>
 
-	<p><what-time-is-it/></p>
-
-	<some-component
-		id="some-component-id"
-		class="some component class"
-		some-boolean
-		some-static="static value"
-		@some-event="someMethod('static', $event)"
-		#some-dynamic="someProp"
-	></some-component>
-
-	<a href="/some/page">Internal Link</a>
-
-	<a href="example.com">External Link</a>
-</div>
+<footer>footer</footer>
