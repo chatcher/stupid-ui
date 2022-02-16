@@ -1,5 +1,5 @@
-import { routes as engineRoutes } from './routes.js';
-import { routes as projectRoutes } from '../routes.js';
+import { route as engineRootRoute } from './routes.js';
+import { route as projectRootRoute } from '../routes.js';
 import { setupStupidComponentAutoloader } from './component-loader.js';
 import { StupidBaseRouteView } from './components/stupid-base-route-view.js';
 
@@ -12,16 +12,16 @@ export class StupidRouterView extends HTMLElement {
 	}
 
 	hijackAnchorClicks() {
-		this.addEventListener('click', (event) => {
-			const nodeName = event.target.nodeName.toLowerCase();
-			const routeName = event.target.getAttribute('href');
-			const route = this.router.routes[routeName];
-			if (nodeName === 'a' && route) {
-				event.stopPropagation();
-				event.preventDefault();
-				this.router.changeRoute(routeName);
-			}
-		});
+		// this.addEventListener('click', (event) => {
+		// 	const nodeName = event.target.nodeName.toLowerCase();
+		// 	const routeName = event.target.getAttribute('href');
+		// 	const route = this.router.routes[routeName];
+		// 	if (nodeName === 'a' && route) {
+		// 		event.stopPropagation();
+		// 		event.preventDefault();
+		// 		this.router.changeRoute(routeName);
+		// 	}
+		// });
 	}
 
 	async loadRoute(context) {
@@ -48,18 +48,21 @@ customElements.define('stupid-router-view', StupidRouterView);
 
 class EngineRouter {
 	routerView = new StupidRouterView(this);
-	routes = {
-		...engineRoutes,
-		...projectRoutes,
-	};
+	// routes = {
+	// 	...engineRoutes,
+	// 	...projectRoutes,
+	// };
 
 	constructor() {
 		const routePath = location.pathname;
 
 		document.querySelector('body').appendChild(this.routerView);
 
-		if (this.routes[routePath]) {
-			this.updateRoute();
+		// const route = this.findRoute(routePath);
+
+		const route = this.updateRoute();
+
+		if (route) {
 		} else if (/errors/.test(routePath)) {
 			console.log('invalid error route');
 		} else {
@@ -79,8 +82,43 @@ class EngineRouter {
 	}
 
 	updateRoute() {
-		const route = this.routes[location.pathname];
+		console.log('updateRoute()', location.pathname);
+
+		const route = this.findRoute(location.pathname);
+		if (!route) {
+			console.warn('no route for', location.pathname);
+			return null;
+		}
+
+		console.log({ route });
+		// this.routes[location.pathname];
 		this.routerView.loadRoute(route);
+		return route;
+	}
+
+	findRoute(pathname) {
+		const projectRoute = pathname === '/'
+			? projectRootRoute
+			: pathname
+				.split('/')
+				.slice(1)
+				.reduce((result, name) => {
+					return result && result.routes[name];
+				}, projectRootRoute);
+		console.log({
+			x: [
+				pathname,
+				pathname.split('/'),
+				pathname.split('/').slice(1),
+			],
+			projectRootRoute,
+			projectRoute,
+		});
+		return projectRoute || pathname.split('/')
+			.slice(1)
+			.reduce((result, name) => {
+				return result && result.routes[name];
+			}, engineRootRoute) || null;
 	}
 }
 

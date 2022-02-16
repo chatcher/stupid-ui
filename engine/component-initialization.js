@@ -43,6 +43,8 @@ export async function loadController(context) {
 
 		if (!controllerModule[controllerClassName]) {
 			console.warn(`No controller exported from ${context.name} module.`);
+			console.log({ controllerClassName });
+			console.info(controllerModule);
 			return null;
 		}
 

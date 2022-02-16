@@ -1,6 +1,6 @@
 import { StupidBaseRouteView } from '/engine/components/stupid-base-route-view.js';
 
-export class SomePageViewController extends StupidBaseRouteView {
+export class PageViewController extends StupidBaseRouteView {
 	someProp = 'PageViewController.someProp';
 
 	async beforeRouteEnter() {

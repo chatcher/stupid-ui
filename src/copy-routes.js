@@ -1,47 +1,41 @@
 const fs = require('fs/promises');
 const path = require('path');
-const { directoryExists, copyFiles, check } = require('./utilities');
+const { fileExists, directoryExists, copyFiles, check } = require('./utilities');
 
 const loadRoutes = async (rootPath, heirarchy = []) => {
-	const routes = {};
+	const routeName = heirarchy[heirarchy.length - 1] || 'root';
+	const route = {
+		name: `${routeName}-view`,
+		path: path.join('/', ...heirarchy),
+		template: null,
+		controller: null,
+		files: [],
+		routes: {},
+	};
 
-	const routeName = path.join('/', ...heirarchy);
-	const fullPath = path.join(rootPath, routeName);
-	const contents = await fs.readdir(fullPath);
+	const routePath = path.join('/routes', ...heirarchy);
+	const baseFilePath = path.join(rootPath, ...heirarchy);
+	const contents = await fs.readdir(baseFilePath);
 
-	await Promise.all(contents.map(async (fileName) => {
-		const filePath = path.join(fullPath, fileName);
+	await Promise.all(contents.map(async (name) => {
+		const filePath = path.join(baseFilePath, name);
+		const routeFilePath = path.join(routePath, name);
 
 		if (await directoryExists(filePath)) {
-			Object.assign(routes, await loadRoutes(rootPath, [...heirarchy, fileName]));
-		} else if (/\.(html|js)$/.test(fileName)) {
-			const baseFilePath = filePath.replace(/\.(html|js)$/, '');
-			const fileBaseName = fileName.replace(/\.(html|js)$/, '');
-
-			const baseName = routeName.replace(/^\//, '').replace(/\W+/g, '-').toLowerCase();
-			const name = `${baseName || 'root'}-view`;
-
-			const templatePath = `${baseFilePath}.html`;
-			const templateFile = path.join('/routes', routeName, `${fileBaseName}.html`);
-
-			const controllerPath = `${baseFilePath}.js`;
-			const controllerFile = path.join('/routes', routeName, `${fileBaseName}.js`);
-
-			const route = {
-				path: routeName,
-				name,
-				files: [],
-			};
-
-			route.template = await check(route, templatePath, templateFile);
-			route.controller = await check(route, controllerPath, controllerFile);
-
-			routes[routeName] = route;
+			route.routes[name] = await loadRoutes(rootPath, [...heirarchy, name]);
+		} else if (new RegExp(`${routeName}\\.html$`).test(name)) {
+			route.template = routeFilePath;
+			route.files.push(routeFilePath);
+		} else if (new RegExp(`${routeName}\\.js$`).test(name)) {
+			route.controller = routeFilePath;
+			route.files.push(routeFilePath);
+		} else {
+			console.log(name, 'unknown file');
 		}
 	}));
 
-	return routes;
-};
+	return route;
+}
 
 module.exports.copyRoutes = async ({
 	projectRoutesPath,
@@ -52,15 +46,21 @@ module.exports.copyRoutes = async ({
 	console.debug({ routes });
 	await fs.writeFile(
 		path.join(projectBuildPath, 'routes.js'),
-		`export const routes = ${JSON.stringify(routes, null, 2)};\n`,
+		`export const route = ${JSON.stringify(routes, null, 2)};\n`,
 	);
 	await copyFiles(
 		projectRoutesPath,
 		path.join(projectBuildPath, 'routes'),
 		(filePath) => {
 			const routeFile = filePath.replace(projectRootPath, '');
-			return Object.values(routes)
-				.find((route) => route.files.includes(routeFile));
+			const route = path.dirname(filePath)
+				.replace(projectRoutesPath, '')
+				.split('/')
+				.slice(1)
+				.reduce((result, name) => {
+					return result && result.routes[name];
+				}, routes);
+			return route && route.files.includes(routeFile);
 		}
 	);
 };

@@ -42,7 +42,7 @@ const { copyEngine } = require('./src/copy-engine');
 	});
 
 	// import/run host
-	require('./src/client-server');
+	// require('./src/client-server');
 
 	console.debug('failed to explode');
 })();
