@@ -5,7 +5,7 @@ import {
 	setupStupidComponentAutoloader,
 	setupStupidEngineRouterView,
 } from './component-loader.js';
-import { StupidBaseRouteView } from './components/stupid-base-route-view.js';
+import { StupidBaseRouteView } from './routes/stupid-base-route-view.js';
 
 export class StupidRouterViewController extends StupidBaseRouteView {
 	get isAttached() {

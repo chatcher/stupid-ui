@@ -1,4 +1,4 @@
-import { StupidBaseRouteView } from '/engine/components/stupid-base-route-view.js';
+import { StupidBaseRouteView } from '/engine/routes/stupid-base-route-view.js';
 
 export class LoginViewController extends StupidBaseRouteView {
 	submit(data) {
