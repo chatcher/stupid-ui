@@ -1,3 +1,6 @@
+<style>
+</style>
+
 <header>
 	<slot name="header">Header</slot>
 
@@ -7,10 +10,12 @@
 	>Log Out</button>
 </header>
 
-<sidebar>sidebar</sidebar>
+<section class="row">
+	<sidebar>sidebar</sidebar>
 
-<main>
-	<route-view></route-view>
-</main>
+	<main>
+		<route-slot>route slot in client root</route-slot>
+	</main>
+</section>
 
 <footer>footer</footer>

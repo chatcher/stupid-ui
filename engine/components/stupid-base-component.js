@@ -23,7 +23,9 @@ function wrap(object, callback) {
 }
 
 export class StupidBaseComponent {
-	onInit() {}
+	onInit() {
+		console.log('StupidBaseComponent::onInit()');
+	}
 
 	constructor(element, router, services) {
 		this.$element = element;

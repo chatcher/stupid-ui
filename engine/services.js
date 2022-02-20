@@ -47,7 +47,6 @@ const serviceMethodHandler = {
 const serviceProxyHandler = {
 	get(serviceCache, serviceName) {
 		if (!(serviceName in serviceCache)) {
-
 			serviceCache[serviceName] = new Proxy({
 				$name: serviceName,
 				$router: serviceCache.$router,

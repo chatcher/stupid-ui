@@ -1,14 +1,17 @@
 export const route = {
+	'name': 'engine-root-view',
+	'path': '/',
 	routes: {
 		'errors': {
+			'name': 'errors-view',
 			'path': '/errors',
-			'file': '/engine/routes/errors/errors.html',
+			'template': '/engine/routes/errors/errors.html',
 			'routes': {
 				'404': {
-					'name': 'error-404',
+					'name': 'error-404-view',
 					'path': '/404',
-					'file': '/engine/routes/errors/404/404.html',
-					'route': {},
+					'template': '/engine/routes/errors/404/404.html',
+					'routes': {},
 				},
 			},
 		},

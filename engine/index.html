@@ -6,13 +6,32 @@
 		margin: 0;
 	}
 	header {
-		background: orange;
+		border-bottom: solid 1px;
 		height: 64px;
 		display: flex;
+		justify-content: space-between;
 		align-items: flex-start;
 		padding: 4px 6px;
-		justify-content: space-between;
 	}
+	header + section {
+		display: flex;
+	}
+	header ~ footer {
+		border-top: solid 1px;
+		height: 64px;
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		padding: 4px 6px;
+	}
+	sidebar {
+		min-width: 15%;
+		max-width: 30%;
+    border-right: solid 1px;
+    padding: 4px 6px;
+	}
+	main {
+		padding: 4px 6px;
 	}
 	form {
 		width: 20em;
@@ -54,9 +73,7 @@
 	src="/engine/loader.js"
 ></script>
 
-<body>
-	<route-view></route-view>
-</body>
+<body></body>
 
 <script>
 	console.log('loading finished');
