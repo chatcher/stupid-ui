@@ -20,7 +20,29 @@ import { services } from './services.js';
 
 const componentCache = {};
 
-let loadCount = 0;
+let loadCount = 1;
+let readyTimeout = null;
+let readyPromise = null;
+
+const readyState = {};
+readyState.promise = new Promise((resolve) => {
+	readyState.resolve = resolve;
+});
+
+export const markLoadingComplete = (name) => {
+	loadCount--;
+	console.log({ loadCount, name });
+	if(loadCount === 0) {
+		console.warn('resolving a promise');
+		readyState.resolve();
+		document.dispatchEvent(new Event(
+			'stupid-engine-ready',
+			{ bubbles: true }
+		));
+	}
+
+	return readyState.promise;
+};
 
 export const setupStupidComponent = async ({
 	context,
@@ -29,7 +51,7 @@ export const setupStupidComponent = async ({
 	Controller,
 }) => {
 	class StupidComponent extends HTMLElement {
-		children = [];
+		childComponents = [];
 
 		constructor() {
 			super();
@@ -67,14 +89,7 @@ export const setupStupidComponent = async ({
 		StupidComponent,
 	);
 
-	loadCount--;
-	console.log({ loadCount });
-	if(!loadCount) {
-		document.dispatchEvent(new Event(
-			'stupid-engine-ready',
-			{ bubbles: true }
-		));
-	}
+	markLoadingComplete(context.name);
 };
 
 export const setupStupidComponentAutoloader = async (

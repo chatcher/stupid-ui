@@ -87,7 +87,7 @@ function listenForChildComponents(element) {
 		event.stopPropagation();
 		const child = event.target;
 		console.debug(`StupidComponent<${element.context.name}>::child-attached`, child, { child });
-		element.children.push(child);
+		element.childComponents.push(child);
 		watchChildEvents(element, child);
 		bindDataToChild(element, child);
 	});
@@ -96,8 +96,8 @@ function listenForChildComponents(element) {
 		event.stopPropagation();
 		const child = event.target;
 		console.warn(`StupidComponent<${element.context.name}>::child-detached`, child, { child });
-		const index = element.children.indexOf(child);
-		element.children.splice(index, 1);
+		const index = element.childComponents.indexOf(child);
+		element.childComponents.splice(index, 1);
 	});
 }
 
@@ -116,7 +116,7 @@ function convertPropertiesToWatchedProperties(element) {
 			if (attribute) element.controller[prop] = attribute;
 			controller.$watch(prop, () => {
 				populateTemplate(element);
-				element.children.forEach((child) => bindDataToChild(element, child));
+				element.childComponents.forEach((child) => bindDataToChild(element, child));
 			});
 		});
 }

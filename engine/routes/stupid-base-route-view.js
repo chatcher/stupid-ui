@@ -7,22 +7,20 @@ export class StupidBaseRouteView extends StupidBaseComponent {
 		return true;
 	}
 
-
-	attach() {
-		console.log({ 'my element:': this.$element });
+	$attach() {
+		console.log({ '$attach my element': this.$element });
 		const routeSlot = document.querySelector('route-slot');
 		if (routeSlot) {
-			this.$routeSlot = routeSlot;
-			console.log('i found a route slot:', this.$routeSlot);
-			this.$routeSlot.replaceWith(this.$element);
+			this.$socket = routeSlot;
+			console.log('i found a route slot:', this.$socket);
+			this.$socket.replaceWith(this.$element);
 		} else {
 			console.error('could not find a route slot');
 		}
 	}
 
-	detach() {
-		this.$element.replaceWith(this.$routeSlot);
-		this.$routeSlot = null;
+	$detach() {
+		this.$element.replaceWith(this.$socket);
+		this.$socket = null;
 	}
-
 }

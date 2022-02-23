@@ -19,47 +19,33 @@ export class StupidRouterViewController extends StupidBaseRouteView {
 
 	constructor(element, router, services) {
 		super(element, router, services);
-		console.group('StupidRouterViewController::constructor()');
-		console.log(element);
-		console.log(router);
-		console.log(services);
-		console.log('stupid router view controller $emit', this.$emit);
-		console.groupEnd();
+		console.log('StupidRouterViewController::constructor()');
+		// console.log(element);
+		// console.log(router);
+		// console.log(services);
+		// console.log('stupid router view controller $emit', this.$emit);
+		// console.groupEnd();
 		// this.$emit('stupid-route-created', this);
 		// this.innerHTML = '<p>Loading...</p>';
 	// 	this.router = router;
-	// 	this.hijackAnchorClicks();
+		this.hijackAnchorClicks();
 	}
 
-	// attach() {
-	// 	console.log({ 'my element:': this.$element });
-	// 	const routeSlot = document.querySelector('route-slot');
-	// 	if (routeSlot) {
-	// 		this.$routeSlot = routeSlot;
-	// 		console.log('i found a route slot:', this.$routeSlot);
-	// 		this.$routeSlot.replaceWith(this.$element);
-	// 	} else {
-	// 		console.error('could not find a route slot');
-	// 	}
-	// }
-
-	// detach() {
-	// 	this.$element.replaceWith(this.$routeSlot);
-	// 	this.$routeSlot = null;
-	// }
-
-	// hijackAnchorClicks() {
-	// 	this.addEventListener('click', (event) => {
-	// 		const nodeName = event.target.nodeName.toLowerCase();
-	// 		const routeName = event.target.getAttribute('href');
-	// 		const route = this.router.routes[routeName];
-	// 		if (nodeName === 'a' && route) {
-	// 			event.stopPropagation();
-	// 			event.preventDefault();
-	// 			this.router.changeRoute(routeName);
-	// 		}
-	// 	});
-	// }
+	hijackAnchorClicks() {
+		document.addEventListener('click', (event) => {
+			const nodeName = event.target.nodeName.toLowerCase();
+			if (nodeName !== 'a') {
+				return;
+			}
+			const routeName = event.target.getAttribute('href');
+			const isRoute = this.$router.isRoute(routeName);
+			if (isRoute) {
+				event.stopPropagation();
+				event.preventDefault();
+				this.$router.changeRoute(routeName);
+			}
+		});
+	}
 
 	// async loadRoute(context) {
 	// 	if (!context) throw new Error('Cannot load empty route');
@@ -84,31 +70,12 @@ export class StupidRouterViewController extends StupidBaseRouteView {
 // customElements.define('stupid-router-view', StupidRouterView);
 
 class StupidEngineRouter {
-	routerView = document.createElement('root-view')
-
+	routerView = null;
 	routerPath = [];
 	routerStack = [];
 
 	constructor() {
-		console.log('StupidEngineRouter::constructor()');
-		// const routePath = location.pathname;
-
-		document.querySelector('body').appendChild(this.routerView);
-
-		console.log(this.routerView);
-		console.log({ routerView: this.routerView });
-
-		// const route = this.findRoute(routePath);
-
-		// const route = this.updateRoute();
-
-		// if (route) {
-		// } else if (/errors/.test(routePath)) {
-		// 	console.log('invalid error route');
-		// } else {
-		// 	console.log('i dunno that route (goto 404)');
-		// 	this.changeRoute('/errors/404');
-		// }
+		console.group('StupidEngineRouter::constructor()');
 
 		document.addEventListener('stupid-route-attached', (event) => {
 			console.warn('stupid route attached');
@@ -124,7 +91,7 @@ class StupidEngineRouter {
 			// if (nextRoute) {
 			// 	nextRoute.element.controller.attach();
 			// }
-			setTimeout(() => this.triggerRouteView());
+			setTimeout(() => this.updateRoute());
 		})
 
 		// setTimeout(() => this.changeRoute(location.pathname));
@@ -133,7 +100,8 @@ class StupidEngineRouter {
 			console.warn('stupid engine router', 'stupid-engine-ready', event)
 		// 	// await this.changeRoute(location.pathname);
 		// 	console.log('slots now', document.querySelectorAll('route-slot'));
-			setTimeout(() => this.changeRoute(location.pathname));
+			// setTimeout(() => this.changeRoute(location.pathname));
+			// this.init();
 		});
 
 		window.addEventListener('load', () => {
@@ -143,43 +111,51 @@ class StupidEngineRouter {
 		});
 
 		window.addEventListener('popstate', () => {
-			this.updateRoute();
+			// this.updateRoute();
+			setTimeout(() => this.changeRoute(location.pathname));
 		});
 	}
 
-	async triggerRouteView() {
-		console.group('triggerRouteView()');
-		const nextRouteView = this.routerPath.shift();
-		console.log({nextRouteView});
-		if (nextRouteView) {
-			const element = nextRouteView.element;
-			console.log({ element });
-			const controller = nextRouteView.element.controller;
-			console.log({ controller });
-			if (controller) {
-				const something = controller.attach();
-				console.log('something', { something });
-			} else {
-				console.error('No controller for', element);
-			}
-		} else {
-			console.log('no additional route views');
-		}
+	async init() {
+		console.group('StupidEngineRouter::init()');
+
+		this.routerView = document.createElement('root-view');
+		document.querySelector('body').appendChild(this.routerView);
+
+		// if (route) {
+		// } else if (/errors/.test(routePath)) {
+		// 	console.log('invalid error route');
+		// } else {
+		// 	console.log('i dunno that route (goto 404)');
+		// 	this.changeRoute('/errors/404');
+		// }
+
 		console.groupEnd();
+
+		setTimeout(() => this.changeRoute(location.pathname));
 	}
 
 	async changeRoute(newRoute) {
-		console.log('change route', newRoute);
+		console.group('change route');
+		console.log('new route', newRoute);
+		console.log('router stack', this.routerStack);
+		console.log('router path (before)', this.routerPath);
 
-		// console.log('engine routes', engineRootRoute);
-		// console.log('project routes', projectRootRoute);
-		const parts = newRoute.split('/').slice(1);
-		console.log(parts);
+		const parts = newRoute === '/' ? [] : newRoute.split('/').slice(1);
+		console.log('parts:', parts);
 
+		this.routerStack.length = 0;
 		for (let index = parts.length; index < this.routerPath.length; index++) {
-			this.routerPath[index].element.replaceWith(this.routerPath[index].slot);
+			console.log({ detach: this.routerPath[index] });
+			if (this.routerPath[index]) {
+				this.routerPath[index].element.controller.$detach();
+			}
 			this.routerPath[index] = null;
 		}
+
+		console.log('router path (after)', this.routerPath);
+
+		console.groupEnd();
 
 		let route = projectRootRoute;
 
@@ -187,34 +163,50 @@ class StupidEngineRouter {
 			route = route.routes[name];
 
 			if (!route) {
-				console.error('Missing route', name);
+				console.error('Missing route', name, this.routerPath[index]);
+			  if (this.routerPath[index]) {
+					this.routerPath[index].element.controller.$detach();
+				}
+				this.routerPath[index] = null
+				continue;
 			}
 
-			console.log(index, name);
-			console.warn('create element', route.name);
-			const element = document.createElement(route.name);
-			const entry = { name, element };
+			console.log('routePath at', index, 'should be', name, 'but currently', this.routerPath[index]);
 
 			if (!this.routerPath[index]) {
-				console.log('null');
+				console.log('empty entry at', index);
+				console.warn('create element', route.name);
+				const element = document.createElement(route.name);
+				const entry = { name, element };
 				this.routerPath[index] = entry;
 				this.routerStack.push(entry);
 			} else if (this.routerPath[index].name !== name) {
-				console.log('name');
-				this.routerPath[index].element.replaceWith(this.routerPath[index].slot);
+				console.log('name change', this.routerPath[index]);
+				console.log({ discard: this.routerPath[index] });
+				console.warn('create element', route.name);
+				const element = document.createElement(route.name);
+				const entry = { name, element };
+				this.routerPath[index].element.controller.$detach();
 				this.routerPath[index] = entry;
 				this.routerStack.push(entry);
 			} else if (this.routerStack.length) {
-				console.log('stack');
-				this.routerPath[index].element.replaceWith(this.routerPath[index].slot);
+				console.log('stack exists', this.routerPath[index]);
+				console.log({ discard: this.routerPath[index] });
+				console.warn('create element', route.name);
+				const element = document.createElement(route.name);
+				const entry = { name, element };
+				this.routerPath[index].element.controller.$detach();
 				this.routerPath[index] = entry;
 				this.routerStack.push(entry);
 			} else {
-				console.log('else');
+				console.group('no change at slot', index);
+				console.log({ entry: this.routerPath[index] });
+				console.log({ element: this.routerPath[index].element });
+				console.groupEnd();
 			}
 		}
 
-		this.triggerRouteView();
+		// this.triggerRouteView();
 
 		// const something = this.routerPath[0].element.controller.attach();
 		// console.log({ 'top element': this.routerPath[0].element.controller.attach });
@@ -339,13 +331,37 @@ class StupidEngineRouter {
 
 		// const route = projectRootRoute;
 
-		// const oldRoute = location.pathname;
-		// history.pushState({ oldRoute }, 'Loading...', newRoute);
-		// this.updateRoute();
+		const oldRoute = location.pathname;
+		history.pushState({ oldRoute }, 'Loading...', newRoute);
+		this.updateRoute();
 	}
 
-	updateRoute() {
-		console.log('updateRoute()', location.pathname);
+	async updateRoute() {
+		console.group('updateRoute()');
+		console.log('router path', this.routerPath);
+		console.log('router stack', this.routerStack);
+		console.log();
+
+		const nextRouteView = this.routerStack.shift();
+		console.log({nextRouteView});
+		if (nextRouteView) {
+			const element = nextRouteView.element;
+			console.log({ element });
+			const controller = nextRouteView.element.controller;
+			console.log({ controller });
+			if (controller) {
+				console.log('controller', controller);
+				const beforeRouteEnter = await controller.beforeRouteEnter();
+				console.log({ beforeRouteEnter });
+				const something = controller.$attach();
+				console.log('something', { something });
+			} else {
+				console.error('No controller for', element);
+			}
+		} else {
+			console.log('no additional route views');
+		}
+		console.groupEnd();
 
 		// const route = this.findRoute(location.pathname);
 		// if (!route) {
@@ -360,28 +376,18 @@ class StupidEngineRouter {
 	}
 
 	findRoute(pathname) {
-		// const projectRoute = pathname === '/'
-		// 	? projectRootRoute
-		// 	: pathname
-		// 		.split('/')
-		// 		.slice(1)
-		// 		.reduce((result, name) => {
-		// 			return result && result.routes[name];
-		// 		}, projectRootRoute);
-		// console.log({
-		// 	x: [
-		// 		pathname,
-		// 		pathname.split('/'),
-		// 		pathname.split('/').slice(1),
-		// 	],
-		// 	projectRootRoute,
-		// 	projectRoute,
-		// });
-		// return projectRoute || pathname.split('/')
-		// 	.slice(1)
-		// 	.reduce((result, name) => {
-		// 		return result && result.routes[name];
-		// 	}, engineRootRoute) || null;
+		return pathname === '/'
+			? projectRootRoute
+			: pathname
+				.split('/')
+				.slice(1)
+				.reduce((result, name) => {
+					return result && result.routes[name];
+				}, projectRootRoute);
+	}
+
+	isRoute(pathname) {
+		return !!this.findRoute(pathname);
 	}
 }
 

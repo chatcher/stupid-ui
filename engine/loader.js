@@ -2,20 +2,11 @@ import { components as engineComponents } from './components.js';
 import { components } from '../components.js';
 import { route as engineRootRoute } from './routes.js';
 import { route as projectRootRoute } from '../routes.js';
-import { setupStupidComponentAutoloader, setupStupidComponent } from './component-loader.js';
+import { setupStupidComponentAutoloader, setupStupidComponent, markLoadingComplete } from './component-loader.js';
 import { router, StupidRouterViewController } from './router.js';
 import { services } from './services.js';
 
 services.$router = router;
-
-Object.values(engineComponents).forEach((component) => {
-	setupStupidComponentAutoloader(component, router);
-});
-
-Object.values(components).forEach((component) => {
-	setupStupidComponentAutoloader(component, router);
-});
-
 
 async function recurseRoutes(route) {
 	console.log('recurseRoutes()', route);
@@ -25,10 +16,28 @@ async function recurseRoutes(route) {
 	await setupStupidComponentAutoloader(route, router, StupidRouterViewController, '<route-slot></route-slot>');
 	await Promise.all(Object.values(route.routes).map(recurseRoutes));
 }
-recurseRoutes(projectRootRoute);
-recurseRoutes(engineRootRoute);
 
+async function loadEngine() {
+	const engineComponentPromises = Object.values(engineComponents).map((component) => (
+		setupStupidComponentAutoloader(component, router)
+	));
 
+	const projectComponentPromises = Object.values(components).map((component) => (
+		setupStupidComponentAutoloader(component, router)
+	));
+
+	await Promise.all([
+		...engineComponentPromises,
+		...projectComponentPromises,
+		recurseRoutes(projectRootRoute),
+		recurseRoutes(engineRootRoute),
+	]);
+
+	await markLoadingComplete('engine');
+	await router.init();
+}
+
+loadEngine();
 
 // setupStupidComponent({
 // 	context: projectRootRoute,
