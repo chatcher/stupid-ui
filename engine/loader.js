@@ -9,10 +9,6 @@ import { services } from './services.js';
 services.$router = router;
 
 async function recurseRoutes(route) {
-	console.log('recurseRoutes()', route);
-	// if (!route.template) {
-	// 	route.template = `<slot name=${route.name}>?</slot>`;
-	// }
 	await setupStupidComponentAutoloader(route, router, StupidRouterViewController, '<route-slot></route-slot>');
 	await Promise.all(Object.values(route.routes).map(recurseRoutes));
 }
@@ -38,18 +34,3 @@ async function loadEngine() {
 }
 
 loadEngine();
-
-// setupStupidComponent({
-// 	context: projectRootRoute,
-// 	router,
-// 	template: '<p>dunno</p>',
-// 	Controller: StupidRouterViewController,
-// })
-
-// Object.values(projectRootRoute).forEach((component) => {
-// 	setupStupidComponentAutoloader(component, router, StupidRouterViewController);
-// });
-
-// Object.values(engineRootRoute).forEach((component) => {
-// 	setupStupidComponentAutoloader(component, router, StupidRouterViewController);
-// });

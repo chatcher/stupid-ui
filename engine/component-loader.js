@@ -31,9 +31,7 @@ readyState.promise = new Promise((resolve) => {
 
 export const markLoadingComplete = (name) => {
 	loadCount--;
-	console.log({ loadCount, name });
 	if(loadCount === 0) {
-		console.warn('resolving a promise');
 		readyState.resolve();
 		document.dispatchEvent(new Event(
 			'stupid-engine-ready',
@@ -56,7 +54,7 @@ export const setupStupidComponent = async ({
 		constructor() {
 			super();
 
-			console.log(`StupidComponent<${context.name}>::constructor()`, { context });
+			// console.log(`StupidComponent<${context.name}>::constructor()`, { context });
 
 			this.context = context;
 			this.template = template;
@@ -83,7 +81,6 @@ export const setupStupidComponent = async ({
 		}
 	}
 
-	console.warn('registering', context.name);
 	customElements.define(
 		context.name,
 		StupidComponent,

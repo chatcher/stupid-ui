@@ -75,11 +75,11 @@ class StupidEngineRouter {
 	routerStack = [];
 
 	constructor() {
-		console.group('StupidEngineRouter::constructor()');
+		console.log('StupidEngineRouter::constructor()');
 
 		document.addEventListener('stupid-route-attached', (event) => {
 			console.warn('stupid route attached');
-			console.log(event);
+			// console.log(event);
 
 			// console.log('um, router path root', this.routerPath[0].element.controller.isAttached)
 			// const nextRoute = this.routerPath.find((route) => {
@@ -98,17 +98,17 @@ class StupidEngineRouter {
 
 		document.addEventListener('stupid-engine-ready', async (event) => {
 			console.warn('stupid engine router', 'stupid-engine-ready', event)
-		// 	// await this.changeRoute(location.pathname);
-		// 	console.log('slots now', document.querySelectorAll('route-slot'));
-			// setTimeout(() => this.changeRoute(location.pathname));
-			// this.init();
+		// // 	// await this.changeRoute(location.pathname);
+		// // 	console.log('slots now', document.querySelectorAll('route-slot'));
+		// 	// setTimeout(() => this.changeRoute(location.pathname));
+		// 	// this.init();
 		});
 
-		window.addEventListener('load', () => {
-			console.warn('window load');
-			// this.changeRoute(location.pathname)
-			// setTimeout(() => this.changeRoute(location.pathname));
-		});
+		// window.addEventListener('load', () => {
+		// 	console.warn('window load');
+		// 	// this.changeRoute(location.pathname)
+		// 	// setTimeout(() => this.changeRoute(location.pathname));
+		// });
 
 		window.addEventListener('popstate', () => {
 			// this.updateRoute();
@@ -120,6 +120,7 @@ class StupidEngineRouter {
 		console.group('StupidEngineRouter::init()');
 
 		this.routerView = document.createElement('root-view');
+		// this.routerView = document.createElement('stupid-router-view');
 		document.querySelector('body').appendChild(this.routerView);
 
 		// if (route) {
@@ -154,8 +155,6 @@ class StupidEngineRouter {
 		}
 
 		console.log('router path (after)', this.routerPath);
-
-		console.groupEnd();
 
 		let route = projectRootRoute;
 
@@ -202,9 +201,10 @@ class StupidEngineRouter {
 				console.group('no change at slot', index);
 				console.log({ entry: this.routerPath[index] });
 				console.log({ element: this.routerPath[index].element });
-				console.groupEnd();
 			}
 		}
+
+		console.groupEnd();
 
 		// this.triggerRouteView();
 
