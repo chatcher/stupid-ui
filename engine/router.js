@@ -120,8 +120,7 @@ class StupidEngineRouter {
 	async init() {
 		console.group('StupidEngineRouter::init()');
 
-		this.routerView = document.createElement('root-view');
-		// this.routerView = document.createElement('stupid-router-view');
+		this.routerView = document.createElement('stupid-router-view');
 		document.querySelector('body').appendChild(this.routerView);
 
 		// if (route) {
@@ -144,6 +143,7 @@ class StupidEngineRouter {
 		console.log('router path (before)', this.routerPath);
 
 		const parts = newRoute === '/' ? [] : newRoute.split('/').slice(1);
+		parts.unshift('root');
 		console.log('parts:', parts);
 
 		this.routerStack.length = 0;
@@ -160,7 +160,7 @@ class StupidEngineRouter {
 		let route = projectRootRoute;
 
 		for (const [index, name] of parts.entries()) {
-			route = route.routes[name];
+			route = name === 'root' ? projectRootRoute : route.routes[name];
 
 			if (!route) {
 				console.error('Missing route', name, this.routerPath[index]);

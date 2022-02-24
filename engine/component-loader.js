@@ -123,7 +123,7 @@ export const setupStupidEngineRouterView = async (router, Controller) => {
 			name: 'stupid-router-view'
 		},
 		router,
-		template: '<p>stupid-router-view template i guess</p>',
+		template: '<route-slot>stupid-router-view template i guess</route-slot>',
 		Controller,
 	});
 };

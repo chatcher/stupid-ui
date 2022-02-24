@@ -14,6 +14,7 @@ export class StupidBaseRouteView extends StupidBaseComponent {
 			this.$socket = routeSlot;
 			console.log('i found a route slot:', this.$socket);
 			this.$socket.replaceWith(this.$element);
+			this.$emit('stupid-route-attached', this);
 		} else {
 			console.error('could not find a route slot');
 		}
