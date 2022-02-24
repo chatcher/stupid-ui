@@ -78,7 +78,7 @@ class StupidEngineRouter {
 		console.log('StupidEngineRouter::constructor()');
 
 		document.addEventListener('stupid-route-attached', (event) => {
-			console.warn('stupid route attached');
+			console.warn('stupid route attached', event.target.tagName);
 			// console.log(event);
 
 			// console.log('um, router path root', this.routerPath[0].element.controller.isAttached)
@@ -91,8 +91,9 @@ class StupidEngineRouter {
 			// if (nextRoute) {
 			// 	nextRoute.element.controller.attach();
 			// }
+
 			setTimeout(() => this.updateRoute());
-		})
+		});
 
 		// setTimeout(() => this.changeRoute(location.pathname));
 
@@ -203,6 +204,11 @@ class StupidEngineRouter {
 				console.log({ element: this.routerPath[index].element });
 			}
 		}
+
+		console.group('final');
+		console.log({ routerPath: this.routerPath });
+		console.log({ routerStack: this.routerStack });
+		console.groupEnd();
 
 		console.groupEnd();
 
@@ -333,7 +339,7 @@ class StupidEngineRouter {
 
 		const oldRoute = location.pathname;
 		history.pushState({ oldRoute }, 'Loading...', newRoute);
-		this.updateRoute();
+		// this.updateRoute();
 	}
 
 	async updateRoute() {
@@ -353,8 +359,8 @@ class StupidEngineRouter {
 				console.log('controller', controller);
 				const beforeRouteEnter = await controller.beforeRouteEnter();
 				console.log({ beforeRouteEnter });
-				const something = controller.$attach();
-				console.log('something', { something });
+				const attach = controller.$attach();
+				console.log({ attach });
 			} else {
 				console.error('No controller for', element);
 			}
