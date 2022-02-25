@@ -13,7 +13,7 @@ export class StupidRouterViewController extends StupidBaseRouteView {
 	}
 
 	onInit() {
-		console.warn('StupidRouterViewController::onInit()');
+		console.log('StupidRouterViewController::onInit()');
 	}
 
 	constructor(element, router, services) {
@@ -48,12 +48,12 @@ class StupidEngineRouter {
 		console.log('StupidEngineRouter::constructor()');
 
 		document.addEventListener('stupid-route-attached', (event) => {
-			console.warn('stupid route attached', event.target.tagName);
+			console.log('stupid route attached', event.target.tagName);
 			setTimeout(() => this.updateRoute());
 		});
 
 		document.addEventListener('stupid-engine-ready', async (event) => {
-			console.warn('stupid engine router', 'stupid-engine-ready', event)
+			console.log('stupid engine router', 'stupid-engine-ready')
 		});
 
 		window.addEventListener('popstate', () => {
@@ -72,7 +72,7 @@ class StupidEngineRouter {
 	}
 
 	async changeRoute(newRoute) {
-		console.group('change route');
+		console.groupCollapsed('change route');
 		console.log('new route', newRoute);
 
 		const parts = newRoute === '/' ? [] : newRoute.split('/').slice(1);
@@ -144,7 +144,7 @@ class StupidEngineRouter {
 	}
 
 	async updateRoute() {
-		console.group('updateRoute()');
+		console.groupCollapsed('updateRoute()');
 		const nextRouteView = this.routerStack.shift();
 		if (nextRouteView) {
 			const element = nextRouteView.element;
