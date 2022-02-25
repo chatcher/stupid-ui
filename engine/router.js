@@ -358,9 +358,13 @@ class StupidEngineRouter {
 			if (controller) {
 				console.log('controller', controller);
 				const beforeRouteEnter = await controller.beforeRouteEnter();
-				console.log({ beforeRouteEnter });
-				const attach = controller.$attach();
-				console.log({ attach });
+				console.log({ beforeRouteEnter, match: beforeRouteEnter === location.pathname });
+				if (beforeRouteEnter === true || beforeRouteEnter === location.pathname) {
+					const attach = controller.$attach();
+					console.log({ attach });
+				} else {
+					console.error('should re-route');
+				}
 			} else {
 				console.error('No controller for', element);
 			}
