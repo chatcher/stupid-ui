@@ -8,11 +8,9 @@ export class StupidBaseRouteView extends StupidBaseComponent {
 	}
 
 	$attach() {
-		console.log({ '$attach my element': this.$element });
 		const routeSlot = document.querySelector('route-slot');
 		if (routeSlot) {
 			this.$socket = routeSlot;
-			console.log('i found a route slot:', this.$socket);
 			this.$socket.replaceWith(this.$element);
 			this.$emit('stupid-route-attached', this);
 		} else {

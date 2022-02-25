@@ -8,7 +8,6 @@ import {
 
 export async function loadTemplate(context) {
 	if (!context.template) {
-		console.info(`No template declared for ${context.name}.`);
 		return null;
 	}
 
@@ -25,7 +24,6 @@ export async function loadTemplate(context) {
 
 export async function loadController(context) {
 	if (!context.controller) {
-		console.info(`No controller declared for ${context.name}.`);
 		return null;
 	}
 
