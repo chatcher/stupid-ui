@@ -18,6 +18,10 @@ export class RootViewController extends StupidBaseRouteView {
 		return this.$services.authService.logout();
 	}
 
+	async isAuthenticated() {
+		return this.$services.authService.isAuthenticated();
+	}
+
 	someMethod(something, event) {
 		if (event.message) {
 			this.someProp = event.message;

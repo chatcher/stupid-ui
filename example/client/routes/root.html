@@ -5,7 +5,7 @@
 	<slot name="header">Header</slot>
 
 	<button
-		x-if="$services.authService.isAuthenticated()"
+		x-if="isAuthenticated()"
 		@click="logout()"
 	>Log Out ({{ username }})</button>
 </header>
