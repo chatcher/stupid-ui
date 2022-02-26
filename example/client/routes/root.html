@@ -7,7 +7,7 @@
 	<button
 		x-if="$services.authService.isAuthenticated()"
 		@click="logout()"
-	>Log Out</button>
+	>Log Out ({{ username }})</button>
 </header>
 
 <section class="row">

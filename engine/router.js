@@ -79,13 +79,17 @@ class StupidEngineRouter {
 		parts.unshift('root');
 
 		this.routerStack.length = 0;
-		for (let index = parts.length; index < this.routerPath.length; index++) {
-			console.log({ detach: this.routerPath[index] });
-			if (this.routerPath[index]) {
-				this.routerPath[index].element.controller.$detach();
-			}
+		for (let index = this.routerPath.length - 1; index >= parts.length; index--) {
+			const entry = this.routerPath[index];
 			this.routerPath[index] = null;
+			console.log({ detach: entry, index });
+			if (entry) {
+				entry.element.controller.$detach();
+			}
 		}
+
+		console.log('path', this.routerPath);
+		console.log('stack', this.routerStack);
 
 		let route = projectRootRoute;
 
@@ -102,6 +106,8 @@ class StupidEngineRouter {
 			}
 
 			if (!this.routerPath[index]) {
+				console.log('empty path slot', index);
+				console.warn('create element', route.name);
 				const element = document.createElement(route.name);
 				const entry = { name, element };
 				this.routerPath[index] = entry;
@@ -125,9 +131,12 @@ class StupidEngineRouter {
 				this.routerPath[index] = entry;
 				this.routerStack.push(entry);
 			} else {
-				console.group('no change at slot', index);
+				console.log('no change at slot', index);
 				console.log({ entry: this.routerPath[index] });
 				console.log({ element: this.routerPath[index].element });
+				this.routerPath[index].skipAttach = true;
+				this.routerStack.push(this.routerPath[index]);
+				setTimeout(() => this.updateRoute());
 			}
 		}
 
@@ -138,7 +147,6 @@ class StupidEngineRouter {
 
 		const oldRoute = location.pathname;
 		history.pushState({ oldRoute }, 'Loading...', newRoute);
-		// this.updateRoute();
 
 		console.groupEnd();
 	}
@@ -154,15 +162,29 @@ class StupidEngineRouter {
 				const beforeRouteEnter = await controller.beforeRouteEnter();
 				console.log({ beforeRouteEnter, match: beforeRouteEnter === location.pathname });
 				if (beforeRouteEnter === true || beforeRouteEnter === location.pathname) {
-					const attach = controller.$attach();
+					nextRouteView.skipAttach || controller.$attach();
+					// setTimeout(() => this.updateRoute());
 				} else {
+					console.groupEnd();
 					console.error('should re-route');
+					console.log('path', this.routerPath);
+					console.log('stack', this.routerStack);
+					console.log(this.routerPath.includes(nextRouteView));
+					const index = this.routerPath.indexOf(nextRouteView);
+					this.routerPath[index] = nextRouteView.skipAttach ? this.routerPath[index] : null;
+					// this.routerStack.length = 0;
+					await this.changeRoute(beforeRouteEnter);
+					// await this.updateRoute();
+					setTimeout(() => this.updateRoute());
+					return;
 				}
 			} else {
 				console.error('No controller for', element);
 			}
 		} else {
 			console.info('no additional route views');
+			console.log('path', this.routerPath);
+			console.log('stack', this.routerStack);
 		}
 		console.groupEnd();
 	}
