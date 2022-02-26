@@ -18,7 +18,7 @@ export class StupidRouterViewController extends StupidBaseRouteView {
 
 	constructor(element, router, services) {
 		super(element, router, services);
-		console.log('StupidRouterViewController::constructor()');
+		// console.log('StupidRouterViewController::constructor()');
 		this.hijackAnchorClicks();
 	}
 
@@ -45,7 +45,7 @@ class StupidEngineRouter {
 	routerStack = [];
 
 	constructor() {
-		console.log('StupidEngineRouter::constructor()');
+		// console.log('StupidEngineRouter::constructor()');
 
 		document.addEventListener('stupid-route-attached', (event) => {
 			console.log('stupid route attached', event.target.tagName);
@@ -72,7 +72,7 @@ class StupidEngineRouter {
 	}
 
 	async changeRoute(newRoute) {
-		console.groupCollapsed('change route');
+		// console.groupCollapsed('change route');
 		console.log('new route', newRoute);
 
 		const parts = newRoute === '/' ? [] : newRoute.split('/').slice(1);
@@ -88,8 +88,10 @@ class StupidEngineRouter {
 			}
 		}
 
+		console.groupCollapsed('initial path & stack');
 		console.log('path', this.routerPath);
 		console.log('stack', this.routerStack);
+		console.groupEnd();
 
 		let route = projectRootRoute;
 
@@ -106,41 +108,41 @@ class StupidEngineRouter {
 			}
 
 			if (!this.routerPath[index]) {
-				console.log('empty path slot', index);
-				console.warn('create element', route.name);
+				// console.log('empty path slot', index);
+				// console.warn('create element', route.name);
 				const element = document.createElement(route.name);
 				const entry = { name, element };
 				this.routerPath[index] = entry;
 				this.routerStack.push(entry);
 			} else if (this.routerPath[index].name !== name) {
-				console.log('name change', this.routerPath[index]);
-				console.log({ discard: this.routerPath[index] });
-				console.warn('create element', route.name);
+				// console.log('name change', this.routerPath[index]);
+				// console.log({ discard: this.routerPath[index] });
+				// console.warn('create element', route.name);
 				const element = document.createElement(route.name);
 				const entry = { name, element };
 				this.routerPath[index].element.controller.$detach();
 				this.routerPath[index] = entry;
 				this.routerStack.push(entry);
 			} else if (this.routerStack.length) {
-				console.log('stack exists', this.routerPath[index]);
-				console.log({ discard: this.routerPath[index] });
-				console.warn('create element', route.name);
+				// console.log('stack exists', this.routerPath[index]);
+				// console.log({ discard: this.routerPath[index] });
+				// console.warn('create element', route.name);
 				const element = document.createElement(route.name);
 				const entry = { name, element };
 				this.routerPath[index].element.controller.$detach();
 				this.routerPath[index] = entry;
 				this.routerStack.push(entry);
 			} else {
-				console.log('no change at slot', index);
-				console.log({ entry: this.routerPath[index] });
-				console.log({ element: this.routerPath[index].element });
+				// console.log('no change at slot', index);
+				// console.log({ entry: this.routerPath[index] });
+				// console.log({ element: this.routerPath[index].element });
 				this.routerPath[index].skipAttach = true;
 				this.routerStack.push(this.routerPath[index]);
 				setTimeout(() => this.updateRoute());
 			}
 		}
 
-		console.group('final');
+		console.groupCollapsed('final path & stack');
 		console.log({ routerPath: this.routerPath });
 		console.log({ routerStack: this.routerStack });
 		console.groupEnd();
@@ -148,24 +150,24 @@ class StupidEngineRouter {
 		const oldRoute = location.pathname;
 		history.pushState({ oldRoute }, 'Loading...', newRoute);
 
-		console.groupEnd();
+		// console.groupEnd();
 	}
 
 	async updateRoute() {
-		console.groupCollapsed('updateRoute()');
+		// console.groupCollapsed('updateRoute()');
 		const nextRouteView = this.routerStack.shift();
 		if (nextRouteView) {
 			const element = nextRouteView.element;
 			const controller = nextRouteView.element.controller;
 			if (controller) {
-				console.log('controller', controller);
+				// console.log('controller', controller);
 				const beforeRouteEnter = await controller.beforeRouteEnter();
-				console.log({ beforeRouteEnter, match: beforeRouteEnter === location.pathname });
+				// console.log({ beforeRouteEnter, match: beforeRouteEnter === location.pathname });
 				if (beforeRouteEnter === true || beforeRouteEnter === location.pathname) {
 					nextRouteView.skipAttach || controller.$attach();
 					// setTimeout(() => this.updateRoute());
 				} else {
-					console.groupEnd();
+					// console.groupEnd();
 					console.error('should re-route');
 					console.log('path', this.routerPath);
 					console.log('stack', this.routerStack);
@@ -182,11 +184,12 @@ class StupidEngineRouter {
 				console.error('No controller for', element);
 			}
 		} else {
-			console.info('no additional route views');
+			console.groupCollapsed('no additional route views');
 			console.log('path', this.routerPath);
 			console.log('stack', this.routerStack);
+			console.groupEnd();
 		}
-		console.groupEnd();
+		// console.groupEnd();
 	}
 
 	findRoute(pathname) {
