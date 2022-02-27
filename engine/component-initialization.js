@@ -144,7 +144,7 @@ function initializeTemplateLogic(element) {
 	});
 }
 
-function populateTemplate(element) {
+export function populateTemplate(element) {
 	const bindings = element.querySelectorAll(`span[data-component="${element.componentId}"][data-expression]`);
 	Array.from(bindings).forEach(async (span) => {
 		const expression = span.getAttribute('data-expression');
