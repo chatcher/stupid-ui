@@ -6,8 +6,10 @@ export function getTemplateValueMethod(element, expression, callback) {
 	const handler = {
 		get: (self, prop) => {
 			if (callback && !watchedProps.includes(prop)) {
-				controller.$watch(prop, callback);
 				watchedProps.push(prop);
+				if (self.hasOwnProperty(prop)) {
+					controller.$watch(prop, callback);
+				}
 			}
 
 			return Reflect.get(self, prop);
