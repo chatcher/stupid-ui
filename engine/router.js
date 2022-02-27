@@ -5,6 +5,7 @@ import {
 	setupStupidComponentAutoloader,
 	setupStupidEngineRouterView,
 } from './component-loader.js';
+import { populateTemplate } from './component-initialization.js';
 import { StupidBaseRouteView } from './routes/stupid-base-route-view.js';
 
 export class StupidRouterViewController extends StupidBaseRouteView {
@@ -164,7 +165,11 @@ class StupidEngineRouter {
 				const beforeRouteEnter = await controller.beforeRouteEnter();
 				// console.log({ beforeRouteEnter, match: beforeRouteEnter === location.pathname });
 				if (beforeRouteEnter === true || beforeRouteEnter === location.pathname) {
-					nextRouteView.skipAttach || controller.$attach();
+					if (nextRouteView.skipAttach) {
+						populateTemplate(element);
+					} else {
+						controller.$attach();
+					}
 					// setTimeout(() => this.updateRoute());
 				} else {
 					// console.groupEnd();
