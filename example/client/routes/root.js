@@ -4,7 +4,7 @@ export class RootViewController extends StupidBaseRouteView {
 	someProp = 'RootViewController.someProp';
 
 	get username() {
-		return this.$services.authService.username || 'waiting';
+		return this.$services.authService.username;
 	}
 
 	async beforeRouteEnter() {
@@ -18,9 +18,6 @@ export class RootViewController extends StupidBaseRouteView {
 		return this.$services.authService.logout();
 	}
 
-	async isAuthenticated() {
-		return this.$services.authService.isAuthenticated();
-	}
 
 	someMethod(something, event) {
 		if (event.message) {

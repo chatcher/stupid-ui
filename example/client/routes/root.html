@@ -5,7 +5,7 @@
 	<slot name="header">Header</slot>
 
 	<button
-		x-if="isAuthenticated()"
+		if="username"
 		@click="logout()"
 	>Log Out ({{ username }})</button>
 </header>
