@@ -33,6 +33,21 @@ export class StupidBaseComponent {
 		this.$services = services;
 	}
 
+	get $watchableProperties() {
+		const proto = Reflect.getPrototypeOf(this);
+		const superProto = Reflect.getPrototypeOf(proto);
+		const superProtoKeys = Reflect.ownKeys(superProto);
+		const keys = [
+			...Reflect.ownKeys(proto),
+			...Reflect.ownKeys(this),
+		].filter((key, index, array) => (
+			index === array.indexOf(key) &&
+			!superProtoKeys.includes(key) &&
+			/^[a-z]/.test(key)
+		));
+		return keys;
+	}
+
 	$watchers = {}; // { <propName>: [callback] }
 	$watch(name, callback) {
 		if (!this.$watchers[name]) {

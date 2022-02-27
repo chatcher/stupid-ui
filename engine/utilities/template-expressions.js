@@ -1,7 +1,6 @@
 export function getTemplateValueMethod(element, expression, callback) {
 	const { controller } = element;
-	const properties = Object.keys(controller)
-		.filter((property) => /^[a-z]/.test(property));
+	const properties = controller.$watchableProperties;
 	const watchedProps = [];
 	const handler = {
 		get: (self, prop) => {
