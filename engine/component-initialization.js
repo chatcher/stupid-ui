@@ -134,9 +134,9 @@ function bindTemplateSlots(element, template) {
 
 function initializeTemplateLogic(element) {
 	const conditionals = Array.from(element.querySelectorAll('[if]'));
-	conditionals.forEach((conditional) => {
-		initializeTemplateConditional(element, conditional);
-	});
+	element.controller.$conditionalExpressions = conditionals.map((conditional) => (
+		initializeTemplateConditional(element, conditional)
+	));
 
 	const iterations = Array.from(element.querySelectorAll('[for-each]'));
 	iterations.forEach((iteration) => {
@@ -145,10 +145,16 @@ function initializeTemplateLogic(element) {
 }
 
 export function populateTemplate(element) {
-	const bindings = element.querySelectorAll(`span[data-component="${element.componentId}"][data-expression]`);
-	Array.from(bindings).forEach(async (span) => {
-		const expression = span.getAttribute('data-expression');
-		span.innerText = await executeTemplateExpression(element, expression.trim());
+	const expressions = element.controller.$conditionalExpressions || [];
+	expressions.forEach((recalculate) => recalculate());
+
+	setTimeout(() => {
+		const bindings = element.querySelectorAll(`span[data-component="${element.componentId}"][data-expression]`);
+		Array.from(bindings).forEach(async (span) => {
+			const expression = span.getAttribute('data-expression');
+			const something = await executeTemplateExpression(element, expression.trim());
+			span.innerText = something;
+		});
 	});
 }
 
@@ -221,14 +227,16 @@ function initializeTemplateConditional(element, conditional) {
 
 	const method = getTemplateValueMethod(element, expression, recalculate);
 
-	setContent(method());
+	recalculate();
+
+	return recalculate;
 
 	function recalculate() {
 		setContent(method());
 	}
 
-	function setContent(show) {
-		if (show) {
+	async function setContent(show) {
+		if (await show) {
 			slot.replaceWith(conditional);
 		} else {
 			conditional.replaceWith(slot);

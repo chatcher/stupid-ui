@@ -16,7 +16,17 @@ export function getTemplateValueMethod(element, expression, callback) {
 	};
 	const proxy = new Proxy(controller, handler);
 
-	const methodFactory = new Function(`return ({${properties.join(',')}}) => (${expression});`);
+	const methodFactory = new Function(`
+		return async ({
+			${properties.join(',')}
+		}) => {
+			try {
+				return await (${expression})
+			} catch (error) {
+				console.error(error)
+			}
+		}
+	`);
 	const method = methodFactory();
 
 	return () => method(proxy);

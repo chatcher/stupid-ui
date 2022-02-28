@@ -173,7 +173,7 @@ class StupidEngineRouter {
 					// setTimeout(() => this.updateRoute());
 				} else {
 					// console.groupEnd();
-					console.error('should re-route');
+					console.warn('should re-route');
 					console.log('path', this.routerPath);
 					console.log('stack', this.routerStack);
 					console.log(this.routerPath.includes(nextRouteView));
