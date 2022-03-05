@@ -1,18 +1,15 @@
 import { route as engineRootRoute } from './routes.js';
 import { route as projectRootRoute } from '../routes.js';
-import { StupidBaseComponent } from './components/stupid-base-component.js';
-import {
-	setupStupidComponentAutoloader,
-	setupStupidEngineRouterView,
-} from './component-loader.js';
+import { setupStupidEngineRouterView } from './component-loader.js';
 import { populateTemplate } from './component-initialization.js';
 import { StupidBaseRouteView } from './routes/stupid-base-route-view.js';
 
 const baseRoute = mergeRoutes();
 
 const log = {
-	route: (...args) => console.log('routing:', ...args),
-}
+	// route: (...args) => console.log('routing:', ...args),
+	route: () => null,
+};
 
 function mergeRoutes() {
 	const routes = {
@@ -29,7 +26,7 @@ function recursiveMergeRoutes(base, subject) {
 
 export class StupidRouterViewController extends StupidBaseRouteView {
 	get isAttached() {
-		return !!this.$element.parentElement;
+		return Boolean(this.$element.parentElement);
 	}
 
 	onInit() {
@@ -211,7 +208,7 @@ class StupidEngineRouter {
 	}
 
 	isRoute(pathname) {
-		return !!this.findRoute(pathname);
+		return Boolean(this.findRoute(pathname));
 	}
 }
 

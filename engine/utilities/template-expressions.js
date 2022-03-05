@@ -6,7 +6,7 @@ export function getTemplateValueMethod(element, expression, callback) {
 		get: (self, prop) => {
 			if (callback && !watchedProps.includes(prop)) {
 				watchedProps.push(prop);
-				if (self.hasOwnProperty(prop)) {
+				if (Object.hasOwn(self, prop)) {
 					controller.$watch(prop, callback);
 				}
 			}

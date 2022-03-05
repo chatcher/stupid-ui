@@ -15,7 +15,7 @@ export class AuthService extends StupidBaseService {
 
 	async isAuthenticated() {
 		const auth = await this.$services.storageService.get('auth');
-		return !!auth;
+		return Boolean(auth);
 	}
 
 	async authenticate(credentials) {

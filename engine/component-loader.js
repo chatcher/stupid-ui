@@ -88,7 +88,7 @@ export const setupStupidComponentAutoloader = async (
 	context,
 	router,
 	DefaultController = StupidBaseComponent,
-	defaultTemplate,
+	defaultTemplate = '',
 ) => {
 	if (!componentCache[context.name]) {
 		loadCount++;
