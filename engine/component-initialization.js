@@ -84,7 +84,6 @@ function listenForChildComponents(element) {
 	element.addEventListener('stupid-component-created', (event) => {
 		event.stopPropagation();
 		const child = event.target;
-		console.debug(`StupidComponent<${element.context.name}>::child-attached`, child, { child });
 		element.childComponents.push(child);
 		watchChildEvents(element, child);
 		bindDataToChild(element, child);

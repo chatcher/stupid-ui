@@ -14,7 +14,6 @@ export class StupidRouterViewController extends StupidBaseRouteView {
 	}
 
 	onInit() {
-		console.log('StupidRouterViewController::onInit()');
 	}
 
 	constructor(element, router, services) {
@@ -49,7 +48,6 @@ class StupidEngineRouter {
 		// console.log('StupidEngineRouter::constructor()');
 
 		document.addEventListener('stupid-route-attached', (event) => {
-			console.log('stupid route attached', event.target.tagName);
 			setTimeout(() => this.updateRoute());
 		});
 
@@ -63,8 +61,6 @@ class StupidEngineRouter {
 	}
 
 	async init() {
-		console.log('StupidEngineRouter::init()');
-
 		this.routerView = document.createElement('stupid-router-view');
 		document.querySelector('body').appendChild(this.routerView);
 
