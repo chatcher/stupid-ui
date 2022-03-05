@@ -1,7 +1,9 @@
+/* eslint-disable quote-props */
+
 export const route = {
 	'name': 'engine-root-view',
 	'path': '/',
-	routes: {
+	'routes': {
 		'errors': {
 			'name': 'errors-view',
 			'path': '/errors',
@@ -15,5 +17,5 @@ export const route = {
 				},
 			},
 		},
-	}
+	},
 };

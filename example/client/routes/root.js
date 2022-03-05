@@ -17,7 +17,6 @@ export class RootViewController extends StupidBaseRouteView {
 		return this.$services.authService.logout();
 	}
 
-
 	someMethod(something, event) {
 		if (event.message) {
 			this.someProp = event.message;

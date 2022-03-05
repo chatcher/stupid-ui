@@ -180,7 +180,6 @@ function watchChildEvents(element, child) {
 }
 
 function bindDataToChild(element, child) {
-	// todo
 	Array.from(child.attributes)
 		.filter((attribute) => /^#/.test(attribute.name))
 		.forEach((attribute) => {
@@ -284,7 +283,8 @@ function initializeTemplateIteration(element, iteration) {
 		list.forEach((item) => {
 			const injection = iteration.cloneNode(true);
 
-			injection.controller = {}; // TODO: should use the stupid base component controller
+			// TODO: should use the stupid base component controller
+			injection.controller = {};
 			Reflect.set(injection.controller, itemName, item);
 
 			initializeTemplate(injection, template);

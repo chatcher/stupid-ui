@@ -21,17 +21,16 @@ import { services } from './services.js';
 const componentCache = {};
 
 let loadCount = 1;
-let readyTimeout = null;
-let readyPromise = null;
 
 const readyState = {};
 readyState.promise = new Promise((resolve) => {
 	readyState.resolve = resolve;
 });
 
-export const markLoadingComplete = (name) => {
+export const markLoadingComplete = () => {
 	loadCount--;
-	if(loadCount === 0) {
+
+	if (loadCount === 0) {
 		readyState.resolve();
 	}
 
@@ -116,7 +115,7 @@ export const setupStupidEngineRouterView = async (router, Controller) => {
 	loadCount++;
 	return setupStupidComponent({
 		context: {
-			name: 'stupid-router-view'
+			name: 'stupid-router-view',
 		},
 		router,
 		template: '<route-slot>stupid-router-view template i guess</route-slot>',

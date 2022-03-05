@@ -16,6 +16,7 @@ export function getTemplateValueMethod(element, expression, callback) {
 	};
 	const proxy = new Proxy(controller, handler);
 
+	// eslint-disable-next-line no-new-func
 	const methodFactory = new Function(`
 		return async ({
 			${properties.join(',')}
@@ -49,6 +50,7 @@ export function getTemplateEventMethod(element, expression) {
 	const properties = Reflect.ownKeys(Reflect.getPrototypeOf(controller))
 		.filter((name) => /^[a-z]/.test(name) && name !== 'constructor');
 
+	// eslint-disable-next-line no-new-func
 	const methodFactory = new Function(`return ({${properties.join(',')}}, $event) => (${expression});`);
 	const method = methodFactory();
 

@@ -56,6 +56,7 @@ class StupidEngineRouter {
 			if (nodeName !== 'a') {
 				return;
 			}
+
 			const routeName = event.target.getAttribute('href');
 			const isRoute = this.isRoute(routeName);
 			if (isRoute) {
@@ -98,14 +99,14 @@ class StupidEngineRouter {
 
 		for (const [index, name] of parts.entries()) {
 			route = name === 'root' ? baseRoute : route.routes[name];
-
 			if (!route) {
 				console.error('Missing route', { name }, this.routerPath[index]);
 				if (this.routerPath[index]) {
 					this.routerPath[index].element.controller.$detach();
 				}
+
 				this.routerPath[index] = null;
-				setTimeout(() => location.replace('/errors/404'))
+				setTimeout(() => location.replace('/errors/404'));
 				continue;
 			}
 
@@ -151,7 +152,7 @@ class StupidEngineRouter {
 
 		const oldRoute = location.pathname;
 		history.pushState({ oldRoute }, 'Loading...', newRoute);
-		log.route('scheduling update route from changeRoute')
+		log.route('scheduling update route from changeRoute');
 		setTimeout(() => this.updateRoute());
 	}
 
@@ -166,8 +167,8 @@ class StupidEngineRouter {
 			return;
 		}
 
-		const element = nextRouteView.element;
-		const controller = nextRouteView.element.controller;
+		const { element } = nextRouteView;
+		const { controller } = nextRouteView.element;
 
 		if (!controller) {
 			console.error('No controller for', element);
@@ -196,7 +197,7 @@ class StupidEngineRouter {
 			controller.$attach();
 		}
 
-		log.route('scheduling update route from re-populate template or route attach')
+		log.route('scheduling update route from re-populate template or route attach');
 		setTimeout(() => this.updateRoute());
 	}
 
@@ -206,9 +207,7 @@ class StupidEngineRouter {
 			: pathname
 				.split('/')
 				.slice(1)
-				.reduce((result, name) => {
-					return result && result.routes[name];
-				}, baseRoute);
+				.reduce((result, name) => result && result.routes[name], baseRoute);
 	}
 
 	isRoute(pathname) {

@@ -2,7 +2,7 @@ import { StupidBaseService } from '/engine/services/stupid-base-service.js';
 
 export class StorageService extends StupidBaseService {
 	get(key) {
-		const value = localStorage.getItem(key)
+		const value = localStorage.getItem(key);
 		return value ? JSON.parse(value) : null;
 	}
 
@@ -10,7 +10,7 @@ export class StorageService extends StupidBaseService {
 		localStorage.setItem(key, JSON.stringify(value));
 	}
 
-	remove(key, value) {
+	remove(key) {
 		localStorage.removeItem(key);
 	}
 }

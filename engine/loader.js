@@ -2,7 +2,7 @@ import { components as engineComponents } from './components.js';
 import { components } from '../components.js';
 import { route as engineRootRoute } from './routes.js';
 import { route as projectRootRoute } from '../routes.js';
-import { setupStupidComponentAutoloader, setupStupidComponent, markLoadingComplete } from './component-loader.js';
+import { setupStupidComponentAutoloader, markLoadingComplete } from './component-loader.js';
 import { router, StupidRouterViewController } from './router.js';
 import { services } from './services.js';
 

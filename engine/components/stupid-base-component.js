@@ -41,9 +41,9 @@ export class StupidBaseComponent {
 			...Reflect.ownKeys(proto),
 			...Reflect.ownKeys(this),
 		].filter((key, index, array) => (
-			index === array.indexOf(key) &&
-			!superProtoKeys.includes(key) &&
-			/^[a-z]/.test(key)
+			index === array.indexOf(key)
+			&& !superProtoKeys.includes(key)
+			&& /^[a-z]/.test(key)
 		));
 		return keys;
 	}

@@ -1,6 +1,6 @@
 const fs = require('fs/promises');
 const path = require('path');
-const { fileExists, directoryExists, copyFiles, check } = require('./utilities');
+const { directoryExists, copyFiles } = require('./utilities');
 
 const loadRoutes = async (rootPath, heirarchy = []) => {
 	const routeName = heirarchy[heirarchy.length - 1] || 'root';
@@ -35,7 +35,7 @@ const loadRoutes = async (rootPath, heirarchy = []) => {
 	}));
 
 	return route;
-}
+};
 
 module.exports.copyRoutes = async ({
 	projectRoutesPath,

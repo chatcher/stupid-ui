@@ -25,7 +25,7 @@ export class AuthService extends StupidBaseService {
 	async logout() {
 		console.log('logout()');
 		await this.$services.storageService.remove('auth');
-		const routeChange = await this.$router.changeRoute('/')
+		const routeChange = await this.$router.changeRoute('/');
 		console.log('after logout', { routeChange });
 	}
 }
