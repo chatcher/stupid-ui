@@ -8,6 +8,21 @@ import {
 import { populateTemplate } from './component-initialization.js';
 import { StupidBaseRouteView } from './routes/stupid-base-route-view.js';
 
+const baseRoute = mergeRoutes();
+
+function mergeRoutes() {
+	const routes = {
+		...projectRootRoute,
+	};
+	recursiveMergeRoutes(routes, engineRootRoute);
+	return routes;
+}
+
+function recursiveMergeRoutes(base, subject) {
+	Object.assign(base.routes, subject.routes, base.routes);
+	// TODO: handle overlapping routes between engine and project.
+}
+
 export class StupidRouterViewController extends StupidBaseRouteView {
 	get isAttached() {
 		return !!this.$element.parentElement;
@@ -55,8 +70,9 @@ class StupidEngineRouter {
 			console.log('stupid engine router', 'stupid-engine-ready')
 		});
 
-		window.addEventListener('popstate', () => {
-			setTimeout(() => this.changeRoute(location.pathname));
+		window.addEventListener('popstate', (event) => {
+			console.warn('history popstate', event);
+			// setTimeout(() => this.changeRoute(location.pathname));
 		});
 	}
 
@@ -90,17 +106,18 @@ class StupidEngineRouter {
 		console.log('stack', this.routerStack);
 		console.groupEnd();
 
-		let route = projectRootRoute;
+		let route = baseRoute;
 
 		for (const [index, name] of parts.entries()) {
-			route = name === 'root' ? projectRootRoute : route.routes[name];
+			route = name === 'root' ? baseRoute : route.routes[name];
 
 			if (!route) {
-				console.error('Missing route', name, this.routerPath[index]);
-			  if (this.routerPath[index]) {
+				console.error('Missing route', { name }, this.routerPath[index]);
+				if (this.routerPath[index]) {
 					this.routerPath[index].element.controller.$detach();
 				}
-				this.routerPath[index] = null
+				this.routerPath[index] = null;
+				setTimeout(() => location.replace('/errors/404'))
 				continue;
 			}
 
@@ -195,13 +212,13 @@ class StupidEngineRouter {
 
 	findRoute(pathname) {
 		return pathname === '/'
-			? projectRootRoute
+			? baseRoute
 			: pathname
 				.split('/')
 				.slice(1)
 				.reduce((result, name) => {
 					return result && result.routes[name];
-				}, projectRootRoute);
+				}, baseRoute);
 	}
 
 	isRoute(pathname) {
