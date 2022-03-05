@@ -10,6 +10,10 @@ import { StupidBaseRouteView } from './routes/stupid-base-route-view.js';
 
 const baseRoute = mergeRoutes();
 
+const log = {
+	route: (...args) => console.log('routing:', ...args),
+}
+
 function mergeRoutes() {
 	const routes = {
 		...projectRootRoute,
@@ -30,28 +34,6 @@ export class StupidRouterViewController extends StupidBaseRouteView {
 
 	onInit() {
 	}
-
-	constructor(element, router, services) {
-		super(element, router, services);
-		// console.log('StupidRouterViewController::constructor()');
-		this.hijackAnchorClicks();
-	}
-
-	hijackAnchorClicks() {
-		document.addEventListener('click', (event) => {
-			const nodeName = event.target.nodeName.toLowerCase();
-			if (nodeName !== 'a') {
-				return;
-			}
-			const routeName = event.target.getAttribute('href');
-			const isRoute = this.$router.isRoute(routeName);
-			if (isRoute) {
-				event.stopPropagation();
-				event.preventDefault();
-				this.$router.changeRoute(routeName);
-			}
-		});
-	}
 }
 
 class StupidEngineRouter {
@@ -61,9 +43,12 @@ class StupidEngineRouter {
 
 	constructor() {
 		// console.log('StupidEngineRouter::constructor()');
+		this.hijackAnchorClicks();
 
 		document.addEventListener('stupid-route-attached', (event) => {
-			setTimeout(() => this.updateRoute());
+			log.route('stupid-route-attached');
+			// log.route('scheduling update route from route attached')
+			// setTimeout(() => this.updateRoute());
 		});
 
 		document.addEventListener('stupid-engine-ready', async (event) => {
@@ -71,8 +56,24 @@ class StupidEngineRouter {
 		});
 
 		window.addEventListener('popstate', (event) => {
-			console.warn('history popstate', event);
-			// setTimeout(() => this.changeRoute(location.pathname));
+			console.warn('history pop', event);
+			setTimeout(() => this.changeRoute(location.pathname));
+		});
+	}
+
+	hijackAnchorClicks() {
+		document.addEventListener('click', (event) => {
+			const nodeName = event.target.nodeName.toLowerCase();
+			if (nodeName !== 'a') {
+				return;
+			}
+			const routeName = event.target.getAttribute('href');
+			const isRoute = this.isRoute(routeName);
+			if (isRoute) {
+				event.stopPropagation();
+				event.preventDefault();
+				this.changeRoute(routeName);
+			}
 		});
 	}
 
@@ -81,12 +82,12 @@ class StupidEngineRouter {
 		document.querySelector('body').appendChild(this.routerView);
 
 		setTimeout(() => this.changeRoute(location.pathname));
-		setTimeout(() => this.updateRoute());
+		// log.route('scheduling update route from init');
+		// setTimeout(() => this.updateRoute());
 	}
 
 	async changeRoute(newRoute) {
-		// console.groupCollapsed('change route');
-		console.log('new route', newRoute);
+		log.route('new route', newRoute);
 
 		const parts = newRoute === '/' ? [] : newRoute.split('/').slice(1);
 		parts.unshift('root');
@@ -101,12 +102,12 @@ class StupidEngineRouter {
 			}
 		}
 
-		console.groupCollapsed('initial path & stack');
-		console.log('path', this.routerPath);
-		console.log('stack', this.routerStack);
-		console.groupEnd();
+		log.route('initial path & stack');
+		log.route('path', this.routerPath);
+		log.route('stack', this.routerStack);
 
 		let route = baseRoute;
+		let forceReattach = false;
 
 		for (const [index, name] of parts.entries()) {
 			route = name === 'root' ? baseRoute : route.routes[name];
@@ -122,53 +123,58 @@ class StupidEngineRouter {
 			}
 
 			if (!this.routerPath[index]) {
-				// console.log('empty path slot', index);
-				// console.warn('create element', route.name);
+				log.route('empty path slot', index);
+				log.route('create element', route.name);
 				const element = document.createElement(route.name);
 				const entry = { name, element };
 				this.routerPath[index] = entry;
 				this.routerStack.push(entry);
+				forceReattach = true;
 			} else if (this.routerPath[index].name !== name) {
-				// console.log('name change', this.routerPath[index]);
-				// console.log({ discard: this.routerPath[index] });
-				// console.warn('create element', route.name);
+				log.route('name change in slot', index, this.routerPath[index]);
+				log.route({ discard: this.routerPath[index] });
+				log.route('create element', route.name);
 				const element = document.createElement(route.name);
 				const entry = { name, element };
 				this.routerPath[index].element.controller.$detach();
 				this.routerPath[index] = entry;
 				this.routerStack.push(entry);
-			} else if (this.routerStack.length) {
-				// console.log('stack exists', this.routerPath[index]);
-				// console.log({ discard: this.routerPath[index] });
-				// console.warn('create element', route.name);
+				forceReattach = true;
+			} else if (forceReattach) {
+				log.route('force reattach in slot', index);
+				log.route({ discard: this.routerPath[index] });
+				log.route('create element', route.name);
 				const element = document.createElement(route.name);
 				const entry = { name, element };
 				this.routerPath[index].element.controller.$detach();
 				this.routerPath[index] = entry;
 				this.routerStack.push(entry);
+			// } else if (this.routerStack.length) {
+			// 	log.route('stack exists for slot', index, this.routerPath[index]);
+			// 	log.route('but we do nothing');
 			} else {
-				// console.log('no change at slot', index);
-				// console.log({ entry: this.routerPath[index] });
-				// console.log({ element: this.routerPath[index].element });
+				log.route('no change at slot', index);
+				log.route({ entry: this.routerPath[index] });
+				log.route({ element: this.routerPath[index].element });
 				this.routerPath[index].skipAttach = true;
 				this.routerStack.push(this.routerPath[index]);
-				setTimeout(() => this.updateRoute());
+				// log.route('scheduling update route from static route')
+				// setTimeout(() => this.updateRoute());
 			}
 		}
 
-		console.groupCollapsed('final path & stack');
-		console.log({ routerPath: this.routerPath });
-		console.log({ routerStack: this.routerStack });
-		console.groupEnd();
+		log.route('final path & stack');
+		log.route({ routerPath: this.routerPath });
+		log.route({ routerStack: this.routerStack });
 
 		const oldRoute = location.pathname;
 		history.pushState({ oldRoute }, 'Loading...', newRoute);
-
-		// console.groupEnd();
+		log.route('scheduling update route from changeRoute')
+		setTimeout(() => this.updateRoute());
 	}
 
 	async updateRoute() {
-		// console.groupCollapsed('updateRoute()');
+		log.route('updateRoute()', this.routerStack.length);
 		const nextRouteView = this.routerStack.shift();
 		if (nextRouteView) {
 			const element = nextRouteView.element;
@@ -176,14 +182,20 @@ class StupidEngineRouter {
 			if (controller) {
 				// console.log('controller', controller);
 				const beforeRouteEnter = await controller.beforeRouteEnter();
-				// console.log({ beforeRouteEnter, match: beforeRouteEnter === location.pathname });
+				log.route({ beforeRouteEnter, match: beforeRouteEnter === location.pathname });
 				if (beforeRouteEnter === true || beforeRouteEnter === location.pathname) {
 					if (nextRouteView.skipAttach) {
+						log.route('re-populating template');
 						populateTemplate(element);
+						// log.route('scheduling update route from re-population')
+						// setTimeout(() => this.updateRoute());
 					} else {
+						log.route('attaching controller');
 						controller.$attach();
+
 					}
-					// setTimeout(() => this.updateRoute());
+					log.route('scheduling update route from route attach or re-populate')
+					setTimeout(() => this.updateRoute());
 				} else {
 					// console.groupEnd();
 					console.warn('should re-route');
@@ -195,7 +207,8 @@ class StupidEngineRouter {
 					// this.routerStack.length = 0;
 					await this.changeRoute(beforeRouteEnter);
 					// await this.updateRoute();
-					setTimeout(() => this.updateRoute());
+					// log.route('scheduling update route from re-routing');
+					// setTimeout(() => this.updateRoute());
 					return;
 				}
 			} else {
