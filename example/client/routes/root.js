@@ -8,10 +8,9 @@ export class RootViewController extends StupidBaseRouteView {
 	}
 
 	async beforeRouteEnter() {
-		console.log('RootViewController::beforeRouteEnter() { return true }');
 		const isAuthenticated = await this.$services.authService.isAuthenticated();
-		console.log({ isAuthenticated });
-		return isAuthenticated ? '/some/page' : '/login';
+		const authRoute = location.pathname === '/' ? '/some/page' : true;
+		return isAuthenticated ? authRoute : '/login';
 	}
 
 	async logout() {
