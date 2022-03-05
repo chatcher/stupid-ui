@@ -33,10 +33,6 @@ export const markLoadingComplete = (name) => {
 	loadCount--;
 	if(loadCount === 0) {
 		readyState.resolve();
-		document.dispatchEvent(new Event(
-			'stupid-engine-ready',
-			{ bubbles: true }
-		));
 	}
 
 	return readyState.promise;

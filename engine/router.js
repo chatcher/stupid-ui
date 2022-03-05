@@ -44,14 +44,6 @@ class StupidEngineRouter {
 	constructor() {
 		this.hijackAnchorClicks();
 
-		// document.addEventListener('stupid-route-attached', (event) => {
-		// 	log.route('stupid-route-attached');
-		// });
-
-		// document.addEventListener('stupid-engine-ready', async (event) => {
-		// 	console.log('stupid engine router', 'stupid-engine-ready')
-		// });
-
 		window.addEventListener('popstate', (event) => {
 			console.warn('history pop', event);
 			setTimeout(() => this.changeRoute(location.pathname));
