@@ -192,7 +192,6 @@ class StupidEngineRouter {
 					} else {
 						log.route('attaching controller');
 						controller.$attach();
-
 					}
 					log.route('scheduling update route from route attach or re-populate')
 					setTimeout(() => this.updateRoute());
