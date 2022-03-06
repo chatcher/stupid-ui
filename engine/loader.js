@@ -1,4 +1,4 @@
-import { components as engineComponents } from './components.js';
+import { components as engineComponents } from './components/components.js';
 import { components } from '../components.js';
 import { route as engineRootRoute } from './routes.js';
 import { route as projectRootRoute } from '../routes.js';
