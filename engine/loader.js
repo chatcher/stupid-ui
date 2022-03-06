@@ -1,6 +1,6 @@
 import { components as engineComponents } from './components/components.js';
 import { components } from '../components.js';
-import { route as engineRootRoute } from './routes.js';
+import { route as engineRootRoute } from './routes/routes.js';
 import { route as projectRootRoute } from '../routes.js';
 import { setupStupidComponentAutoloader, markLoadingComplete } from './component-loader.js';
 import { router, StupidRouterViewController } from './router.js';

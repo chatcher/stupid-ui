@@ -1,4 +1,4 @@
-import { route as engineRootRoute } from './routes.js';
+import { route as engineRootRoute } from './routes/routes.js';
 import { route as projectRootRoute } from '../routes.js';
 import { setupStupidEngineRouterView } from './component-loader.js';
 import { populateTemplate } from './component-initialization.js';
