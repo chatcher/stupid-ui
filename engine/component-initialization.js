@@ -70,7 +70,12 @@ export function initializeTemplate(element, template) {
 	}
 
 	if (element.slottedContent) {
-		element.insertAdjacentHTML('beforeend', element.slottedContent.trim());
+		const slot = element.querySelector('slot:not([name])');
+		if (slot) {
+			slot.insertAdjacentHTML('beforeend', element.slottedContent.trim());
+		} else {
+			element.insertAdjacentHTML('beforeend', element.slottedContent.trim());
+		}
 	}
 }
 
