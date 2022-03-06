@@ -16,7 +16,7 @@ import {
 	connectHeirarchy,
 	initializeTemplate,
 } from './component-initialization.js';
-import { services } from './services.js';
+import { services } from './services/services.js';
 
 const componentCache = {};
 

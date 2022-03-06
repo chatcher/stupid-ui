@@ -4,7 +4,7 @@ import { route as engineRootRoute } from './routes/routes.js';
 import { route as projectRootRoute } from '../routes.js';
 import { setupStupidComponentAutoloader, markLoadingComplete } from './component-loader.js';
 import { router, StupidRouterViewController } from './router.js';
-import { services } from './services.js';
+import { services } from './services/services.js';
 
 services.$router = router;
 
