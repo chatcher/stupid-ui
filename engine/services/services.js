@@ -1,4 +1,4 @@
-import { services as projectServices } from '../services.js';
+import { services as projectServices } from '../../services.js';
 
 const serviceCache = {
 	$router: null,
