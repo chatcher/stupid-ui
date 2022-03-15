@@ -1,0 +1,38 @@
+<style>
+	.tooltip-container {
+		position: relative;
+	}
+
+	.tooltip {
+		background: #444;
+		color: #fff;
+    padding: 2px 4px;
+    border: solid 1px #111;
+    position: absolute;
+    left: -10px;
+    top: calc(100% + 4px);
+		visibility: hidden;
+	}
+
+	.tooltip::before {
+	    content: ' ';
+	    position: absolute;
+	    transform: rotate(45deg);
+	    width: 6px;
+	    height: 6px;
+	    background: #444;
+	    border: solid 1px #111;
+	    border-width: 1px 0px 0px 1px;
+	    left: 14px;
+	    bottom: calc(100% - 3px);
+	}
+
+	.tooltip-trigger:hover + .tooltip {
+		visibility: visible;
+	}
+</style>
+
+<span class="tooltip-container">
+	<span class="tooltip-trigger">(i)</span>
+	<span class="tooltip"><slot></slot></span>
+</span>

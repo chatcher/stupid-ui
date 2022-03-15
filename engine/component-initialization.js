@@ -114,12 +114,13 @@ function convertPropertiesToWatchedProperties(element) {
 	Object.keys(controller)
 		.filter((prop) => /^\w/.test(prop))
 		.forEach((prop) => {
-			const attribute = element.getAttribute(prop);
-			if (attribute) element.controller[prop] = attribute;
 			controller.$watch(prop, () => {
 				populateTemplate(element);
 				element.childComponents.forEach((child) => bindDataToChild(element, child));
 			});
+
+			const attribute = element.getAttribute(prop);
+			if (attribute) element.controller[prop] = attribute;
 		});
 }
 

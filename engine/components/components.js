@@ -1,4 +1,22 @@
 export const components = {
+	"text-input": {
+		"name": "text-input",
+		"controller": "/engine/components/text-input/text-input.js",
+		"template": "/engine/components/text-input/text-input.html",
+		"files": [
+			"/engine/components/text-input/text-input.js",
+			"/engine/components/text-input/text-input.html"
+		]
+	},
+	"info-tooltip": {
+		"name": "info-tooltip",
+		"controller": "/engine/components/info-tooltip/info-tooltip.js",
+		"template": "/engine/components/info-tooltip/info-tooltip.html",
+		"files": [
+			"/engine/components/info-tooltip/info-tooltip.js",
+			"/engine/components/info-tooltip/info-tooltip.html"
+		]
+	},
 	'stupid-switch': {
 		name: 'stupid-switch',
 		files: [

@@ -1,0 +1,39 @@
+<style>
+	label {
+		margin-bottom: 4px;
+	}
+	input {
+		border: solid 1px #333;
+		border-radius: 4px;
+	}
+	input:focus {
+		outline: solid 2px #00fc;
+		border-color: #00f;
+	}
+	input:invalid {
+		outline-color: #f00a;
+		border-color: #f00;
+	}
+
+	p.error {
+		margin: 0;
+		padding: 0;
+		color:  #d00;
+		padding-left: 6px;
+	}
+</style>
+
+<label>
+	<p>
+		<span><slot></slot></span>
+		<span>*</span>
+		<info-tooltip>tooltip</info-tooltip>
+	</p>
+
+	<input
+		type="text"
+		pattern="(?=[^A-Z]*[A-Z])(?=[^0-9]*[0-9])\w{8,}"
+	/>
+
+	<p class="error" if="error">{{error}}</p>
+</label>
