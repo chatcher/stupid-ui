@@ -1,6 +1,9 @@
 <style>
 	label {
 		margin-bottom: 4px;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
 	}
 	input {
 		border: solid 1px #333;
@@ -14,26 +17,34 @@
 		outline-color: #f00a;
 		border-color: #f00;
 	}
-
-	p.error {
-		margin: 0;
-		padding: 0;
-		color:  #d00;
+	.label-container {
+		position: relative;
+		top: 6px;
+		left: 6px;
+		padding: 0px 2px;
+		background: white;
+	}
+	.error-container {
 		padding-left: 6px;
+	}
+	.error {
+		color:  #d00;
 	}
 </style>
 
 <label>
-	<p>
+	<div class="label-container">
 		<span><slot></slot></span>
 		<span>*</span>
 		<info-tooltip>tooltip</info-tooltip>
-	</p>
+	</div>
 
 	<input
 		type="text"
 		pattern="(?=[^A-Z]*[A-Z])(?=[^0-9]*[0-9])\w{8,}"
 	/>
 
-	<p class="error" if="error">{{error}}</p>
+	<div class="error-container" if="error">
+		<p class="error">{{error}}</p>
+	</div>
 </label>
