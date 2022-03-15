@@ -36,19 +36,17 @@ function hijackInputBehavior(element) {
 		});
 
 		input.addEventListener('change', (event) => {
-			console.log('input change', event);
+			event.stopPropagation();
+			controller.onChange(event);
 		});
 
 		input.addEventListener('input', (event) => {
-			console.log('input', event);
+			event.stopPropagation();
+			controller.onInput(event);
 		});
 
 		input.addEventListener('invalid', (event) => {
-			// event.stopPropagation();
-			// event.preventDefault();
-			console.log('invalid input', event);
-			// console.log(input);
-			console.log(event);
+			event.stopPropagation();
 			controller.onError('invalid', event);
 		});
 	});
