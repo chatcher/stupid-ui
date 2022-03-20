@@ -145,22 +145,23 @@ function bindTemplateSlots(element, template) {
 
 	const candidates = [];
 	nodes.forEach((node) => {
+		const parentNode = node.parentNode;
 		const text = node.nodeValue.trim();
 		text.split('{{')
 			.slice(1)
 			.forEach((fragment) => {
 				const rawExpression = fragment.split('}}')[0];
-				candidates.push({
-					node,
-					text: `{{${rawExpression}}}`,
-					expression: rawExpression.trim(),
-				});
+				// candidates.push({
+					// node,
+				const text = `{{${rawExpression}}}`;
+				const expression = rawExpression.trim();
+				// });
+				initializeTemplateBinding(element, expression, parentNode, text);
 			});
 	});
 
-	candidates.forEach(({ node, text, expression }) => {
-		initializeTemplateBinding(element, expression, node, text);
-	});
+	// candidates.forEach(({ node, text, expression }) => {
+	// });
 }
 
 function initializeTemplateLogic(element) {
@@ -252,9 +253,8 @@ function initializeTemplateBinding(element, expression, node, text) {
 		element.componentId,
 		Math.random().toString(16).substr(2, 6),
 	].join('-');
-	const parentNode = node.parentNode;
-	parentNode.innerHTML = parentNode.innerHTML.replace(text, `<slot name="${name}">...</slot>`);
-	const slot = parentNode.querySelector(`slot[name="${name}"]`);
+	node.innerHTML = node.innerHTML.replace(text, `<slot name="${name}">...</slot>`);
+	const slot = node.querySelector(`slot[name="${name}"]`);
 
 	const method = getTemplateValueMethod(element, expression, recalculate);
 
