@@ -125,16 +125,42 @@ function convertPropertiesToWatchedProperties(element) {
 }
 
 function bindTemplateSlots(element, template) {
-	const bindings = template.trim().split('{{');
-	const templateParts = [bindings.shift()];
-	bindings.map((fragment) => fragment.split('}}'))
-		.forEach(([unsafeExpression, trailer]) => {
-			const slot = getBindingReplacementSlot(element, unsafeExpression);
-			templateParts.push(slot);
-			templateParts.push(trailer);
-		});
+	element.innerHTML = template;
 
-	element.innerHTML = templateParts.join('');
+	const walker = document.createTreeWalker(
+		element,
+		NodeFilter.SHOW_TEXT,
+		null,
+		false
+	);
+
+	const nodes = [];
+	let node;
+
+	while(node = walker.nextNode()) {
+		if (/\{\{.*\}\}/.test(node.nodeValue)) {
+			nodes.push(node);
+		}
+	}
+
+	const candidates = [];
+	nodes.forEach((node) => {
+		const text = node.nodeValue.trim();
+		text.split('{{')
+			.slice(1)
+			.forEach((fragment) => {
+				const rawExpression = fragment.split('}}')[0];
+				candidates.push({
+					node,
+					text: `{{${rawExpression}}}`,
+					expression: rawExpression.trim(),
+				});
+			});
+	});
+
+	candidates.forEach(({ node, text, expression }) => {
+		initializeTemplateBinding(element, expression, node, text);
+	});
 }
 
 function initializeTemplateLogic(element) {
@@ -157,8 +183,8 @@ export function populateTemplate(element) {
 		const bindings = element.querySelectorAll(`span[data-component="${element.componentId}"][data-expression]`);
 		Array.from(bindings).forEach(async (span) => {
 			const expression = span.getAttribute('data-expression');
-			const something = await executeTemplateExpression(element, expression.trim());
-			span.innerText = something;
+			const substitution = await executeTemplateExpression(element, expression.trim());
+			span.innerText = substitution;
 		});
 	});
 }
@@ -221,6 +247,30 @@ function getBindingReplacementSlot(element, unsafeExpression) {
 	return `{{${expression}}}`;
 }
 
+function initializeTemplateBinding(element, expression, node, text) {
+	const name = [
+		element.componentId,
+		Math.random().toString(16).substr(2, 6),
+	].join('-');
+	const parentNode = node.parentNode;
+	parentNode.innerHTML = parentNode.innerHTML.replace(text, `<slot name="${name}">...</slot>`);
+	const slot = parentNode.querySelector(`slot[name="${name}"]`);
+
+	const method = getTemplateValueMethod(element, expression, recalculate);
+
+	recalculate();
+
+	return recalculate;
+
+	function recalculate() {
+		setContent(method());
+	}
+
+	async function setContent(value) {
+		slot.textContent = await value;
+	}
+}
+
 function initializeTemplateConditional(element, conditional) {
 	const expression = conditional.getAttribute('if');
 	const slot = document.createElement('slot');
@@ -249,12 +299,12 @@ function initializeTemplateConditional(element, conditional) {
 }
 
 function initializeTemplateIteration(element, iteration) {
-	if (!(iteration.getAttribute('#in') in element.controller)) {
-		console.error('Property not found for iteration:', iteration.getAttribute('#in'));
+	if (!(iteration.getAttribute('in') in element.controller)) {
+		console.error('Property not found for iteration:', iteration.getAttribute('in'));
 		return;
 	}
 
-	const listName = iteration.getAttribute('#in');
+	const listName = iteration.getAttribute('in');
 	const parent = iteration.parentElement;
 	const itemName = iteration.getAttribute('for-each');
 	const template = iteration.innerHTML;
@@ -268,7 +318,7 @@ function initializeTemplateIteration(element, iteration) {
 
 	iteration.replaceWith(slot);
 	iteration.removeAttribute('for-each');
-	iteration.removeAttribute('#in');
+	iteration.removeAttribute('in');
 	iteration.setAttribute('iteration-group', slot.name);
 
 	const { controller } = element;
