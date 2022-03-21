@@ -4,7 +4,7 @@ export function checkTemplateExpression(element, expression) {
 	const methodFactory = new Function(`
 		return ({
 			${properties.join(',')}
-		}) => (${expression});
+		}) => ${expression}
 	`);
 	const method = methodFactory();
 
@@ -71,7 +71,10 @@ export function getTemplateEventMethod(element, expression) {
 		.filter((name) => /^[a-z]/.test(name) && name !== 'constructor');
 
 	// eslint-disable-next-line no-new-func
-	const methodFactory = new Function(`return ({${properties.join(',')}}, $event) => (${expression});`);
+	const methodFactory = new Function(`
+		return ({
+			${properties.join(',')}
+		}, $event) => (${expression});`);
 	const method = methodFactory();
 
 	return (payload) => method(controllerProxy, payload);
