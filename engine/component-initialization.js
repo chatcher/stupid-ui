@@ -1,4 +1,5 @@
 import {
+	checkTemplateExpression,
 	getTemplateValueMethod,
 	getTemplateEventMethod,
 } from './utilities/template-expressions.js';
@@ -151,17 +152,16 @@ function bindTemplateSlots(element, template) {
 			.slice(1)
 			.forEach((fragment) => {
 				const rawExpression = fragment.split('}}')[0];
-				// candidates.push({
-					// node,
 				const text = `{{${rawExpression}}}`;
 				const expression = rawExpression.trim();
-				// });
-				initializeTemplateBinding(element, expression, parentNode, text);
+				const validityResponse = checkTemplateExpression(element, expression);
+				console.log('expression', { validityResponse, expression });
+				if (validityResponse) {
+					const recalculate = initializeTemplateBinding(element, expression, parentNode, text);
+					console.log('recalculate', recalculate);
+				}
 			});
 	});
-
-	// candidates.forEach(({ node, text, expression }) => {
-	// });
 }
 
 function initializeTemplateLogic(element) {
@@ -258,12 +258,14 @@ function initializeTemplateBinding(element, expression, node, text) {
 
 	const method = getTemplateValueMethod(element, expression, recalculate);
 
+	console.log('before');
 	recalculate();
+	console.log('after');
 
 	return recalculate;
 
 	function recalculate() {
-		setContent(method());
+		return setContent(method());
 	}
 
 	async function setContent(value) {

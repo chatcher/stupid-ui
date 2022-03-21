@@ -1,12 +1,32 @@
+export function checkTemplateExpression(element, expression) {
+	const { controller } = element;
+	const properties = controller.$watchableProperties || Reflect.ownKeys(controller);
+	const methodFactory = new Function(`
+		return ({
+			${properties.join(',')}
+		}) => (${expression});
+	`);
+	const method = methodFactory();
+
+	try {
+		const response = method(controller);
+		console.log('response', response);
+		return true;
+	} catch (error) {
+		console.warn('error', error);
+		return false;
+	}
+}
+
 export function getTemplateValueMethod(element, expression, callback) {
 	const { controller } = element;
-	const properties = controller.$watchableProperties;
+	const properties = controller.$watchableProperties || Reflect.ownKeys(controller);
 	const watchedProps = [];
 	const handler = {
 		get: (self, prop) => {
 			if (callback && !watchedProps.includes(prop)) {
 				watchedProps.push(prop);
-				if (Object.hasOwn(self, prop)) {
+				if (Object.hasOwn(self, prop) && Object.hasOwn(controller, '$watch')) {
 					controller.$watch(prop, callback);
 				}
 			}
@@ -22,9 +42,9 @@ export function getTemplateValueMethod(element, expression, callback) {
 			${properties.join(',')}
 		}) => {
 			try {
-				return await (${expression})
+				return await (${expression});
 			} catch (error) {
-				console.error(error)
+				console.error(error);
 			}
 		}
 	`);
