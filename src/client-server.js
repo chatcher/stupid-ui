@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs/promises');
 const path = require('path');
+const buildProjectRouter = require('./build-project-router');
 
 const noThrow = async (method) => {
 	try {
@@ -17,29 +18,35 @@ const fileExists = (filepath) => {
 const app = express();
 const port = 3000;
 
-console.debug('client-server', { cwd: process.cwd() });
+async function init() {
+	// console.debug('client-server', { cwd: process.cwd() });
 
-app.use(express.static('build'));
+	app.use('/api', await buildProjectRouter());
 
-app.get('*', async (req, res) => {
-	const { url } = req;
+	app.use(express.static('build'));
 
-	const routeFilePath = path.join('build/routes', url);
-	console.debug({ url, cwd: process.cwd(), routeFilePath });
+	app.get('*', async (req, res) => {
+		const { url } = req;
 
-	// if (await directoryExists(routeFilePath)) {
-	// 	console.debug('route dir exists', { url })
-	// }
+		const routeFilePath = path.join('build/routes', url);
+		console.debug({ url, cwd: process.cwd(), routeFilePath });
 
-	if (await fileExists(routeFilePath)) {
-		console.debug('route file exists', { url });
-	}
+		// if (await directoryExists(routeFilePath)) {
+		// 	console.debug('route dir exists', { url })
+		// }
 
-	return res.sendFile('build/engine/index.html', {
-		root: process.cwd(),
+		if (await fileExists(routeFilePath)) {
+			console.debug('route file exists', { url });
+		}
+
+		return res.sendFile('build/engine/index.html', {
+			root: process.cwd(),
+		});
 	});
-});
 
-app.listen(port, () => {
-	console.info('Client server listening on port', port);
-});
+	app.listen(port, () => {
+		console.info('Client server listening on port', port);
+	});
+}
+
+init();
