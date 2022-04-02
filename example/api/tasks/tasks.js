@@ -12,14 +12,19 @@
 
 
 module.exports = {
-	get: ({
-		params,
-		query,
-	} = {}) => ({
-		get: 'tasks',
-		params,
-		query,
-	}),
+	get: () => [
+		{ taskId: 1, taskName: 'first' },
+		{ taskId: 2, taskName: 'second' },
+		{ taskId: 3, taskName: 'third' },
+	],
+	// get: ({
+	// 	params,
+	// 	query,
+	// } = {}) => ({
+	// 	get: 'tasks',
+	// 	params,
+	// 	query,
+	// }),
 	post: ({
 		params,
 		query,
