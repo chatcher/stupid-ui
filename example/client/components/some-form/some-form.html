@@ -1,14 +1,35 @@
 <form>
-
 	<info-tooltip>tooltip</info-tooltip>
 
-	<text-input
+	<!-- <text-input
 		requiredx
 		id="some-id"
 		class="classy"
 		name="text-input"
 		placeholder="placeholder"
-	>label</text-input>
+	>label</text-input> -->
+
+
+	<p>dropdown value: {{ dropdownValue }}</p>
+
+	<ul>
+		<li>[</li>
+		<li
+			for-each="option"
+			in="dropdownOptions"
+		>{{option}}</li>
+		<li>]</li>
+	</ul>
+
+	<pre>options: {{ dropdownOptions | json }}</pre>
+
+	<!-- <dropdown-input
+		[options]="dropdownOptions"
+		@select="dropdownValue = $event"
+	>pick-a-thing</dropdown-input> -->
+
+
+
 
 	<!-- <number-input></number-input> -->
 

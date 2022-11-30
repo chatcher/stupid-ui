@@ -1,10 +1,29 @@
+const pipes = {
+  jsonPipe: (value) => JSON.stringify(value, null, 2),
+}
+
+function transformExpression(expression) {
+	const parts = expression.split(/(?<!\|)\|(?!\|)/);
+	return parts.reduce((invocation, part, index) => {
+		if (!index) {
+			return part.trim();
+		}
+
+		const methodArgs = part.trim().split(/\s+/);
+		const method = methodArgs.shift();
+		methodArgs.unshift(invocation);
+
+		return index ? `pipes.${method}Pipe(${methodArgs.join(', ')})` : part;
+	}, '');
+}
+
 export function checkTemplateExpression(element, expression) {
 	const { controller } = element;
 	const properties = controller.$watchableProperties || Reflect.ownKeys(controller);
 	const methodFactory = new Function(`
 		return ({
 			${properties.join(',')}
-		}) => ${expression}
+		}) => ${expression.replace(/(?<!\|)\|(?!\|).*/, '')}
 	`);
 	const method = methodFactory();
 
@@ -39,10 +58,10 @@ export function getTemplateValueMethod(element, expression, callback) {
 	// eslint-disable-next-line no-new-func
 	const methodFactory = new Function(`
 		return async ({
-			${properties.join(',')}
-		}) => {
+			${properties.join(',')},
+		}, pipes) => {
 			try {
-				return await (${expression});
+				return await (${transformExpression(expression)});
 			} catch (error) {
 				console.error(error);
 			}
@@ -50,7 +69,7 @@ export function getTemplateValueMethod(element, expression, callback) {
 	`);
 	const method = methodFactory();
 
-	return () => method(proxy);
+	return () => method(proxy, pipes);
 }
 
 export function getTemplateEventMethod(element, expression) {
@@ -74,8 +93,8 @@ export function getTemplateEventMethod(element, expression) {
 	const methodFactory = new Function(`
 		return ({
 			${properties.join(',')}
-		}, $event) => (${expression});`);
+		}, pipes, $event) => (${transformExpression(expression)});`);
 	const method = methodFactory();
 
-	return (payload) => method(controllerProxy, payload);
+	return (payload) => method(controllerProxy, pipes, payload);
 }

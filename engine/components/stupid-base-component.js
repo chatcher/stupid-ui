@@ -50,6 +50,7 @@ export class StupidBaseComponent {
 
 	$watchers = {}; // { <propName>: [callback] }
 	$watch(name, callback) {
+		console.warn('setting up watch for', name)
 		if (!this.$watchers[name]) {
 			let _value = wrap(this[name], () => {
 				this.$emitWatchers(name);
@@ -57,6 +58,7 @@ export class StupidBaseComponent {
 			Object.defineProperty(this, name, {
 				get: () => _value,
 				set: (value) => {
+					console.warn('set new value for', name)
 					_value = wrap(value, () => {
 						this.$emitWatchers(name);
 					});
@@ -67,7 +69,15 @@ export class StupidBaseComponent {
 		}
 
 		this.$watchers[name].push(callback);
+
+		setTimeout(() => {
+			console.warn('triggering initial callback for watch on', name);
+			console.info(this[name]);
+			callback(this[name])
+		});
+
 		return () => {
+			console.warn('i think something called an unwatcher?')
 			const index = this.$watchers[name].indexOf(callback);
 			console.assert(index >= 0, `Uh, so this is kinda weird. Someone call an unwatch handler for ${name}, but I couldn't find the original callback in the array.`);
 			this.$watchers[name].splice(index, 1);

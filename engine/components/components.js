@@ -8,6 +8,15 @@ export const components = {
 			"/engine/components/text-input/text-input.html"
 		]
 	},
+	"dropdown-input": {
+		"name": "dropdown-input",
+		"controller": "/engine/components/dropdown-input/dropdown-input.js",
+		"template": "/engine/components/dropdown-input/dropdown-input.html",
+		"files": [
+			"/engine/components/dropdown-input/dropdown-input.js",
+			"/engine/components/dropdown-input/dropdown-input.html"
+		]
+	},
 	"info-tooltip": {
 		"name": "info-tooltip",
 		"controller": "/engine/components/info-tooltip/info-tooltip.js",

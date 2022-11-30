@@ -64,9 +64,9 @@ export function initializeTemplate(element, template) {
 	convertPropertiesToWatchedProperties(element);
 
 	if (template) {
-		bindTemplateSlots(element, template);
-		listenForNativeChildNodes(element);
 		initializeTemplateLogic(element);
+		listenForNativeChildNodes(element);
+		bindTemplateSlots(element, template);
 		populateTemplate(element);
 	}
 
@@ -171,7 +171,9 @@ function initializeTemplateLogic(element) {
 	));
 
 	const iterations = Array.from(element.querySelectorAll('[for-each]'));
+	console.error('stupid', {element}, iterations);
 	iterations.forEach((iteration) => {
+		console.log('iteration', iteration, {iteration});
 		initializeTemplateIteration(element, iteration);
 	});
 }
@@ -237,11 +239,11 @@ function getBindingReplacementSlot(element, unsafeExpression) {
 	if (expression in element.controller) {
 		const slotName = `${element.componentId}-slot-${Math.random().toString(16).substr(2)}`;
 		return `<slot
-			name="${slotName}"
+			  name="${slotName}"
 			/><span
-			data-component="${element.componentId}"
-			data-expression="${expression}"
-			slot="${slotName}"
+			  data-component="${element.componentId}"
+			  data-expression="${expression}"
+			  slot="${slotName}"
 			>...</span>`;
 	}
 
@@ -301,12 +303,15 @@ function initializeTemplateConditional(element, conditional) {
 }
 
 function initializeTemplateIteration(element, iteration) {
-	if (!(iteration.getAttribute('in') in element.controller)) {
-		console.error('Property not found for iteration:', iteration.getAttribute('in'));
+	console.warn('initializeTemplateIteration()', 'ffs');
+	const listName = iteration.getAttribute('in');
+
+
+	if (!(listName in element.controller)) {
+		console.error('Property not found for iteration:', listName);
 		return;
 	}
 
-	const listName = iteration.getAttribute('in');
 	const parent = iteration.parentElement;
 	const itemName = iteration.getAttribute('for-each');
 	const template = iteration.innerHTML;
@@ -325,7 +330,10 @@ function initializeTemplateIteration(element, iteration) {
 
 	const { controller } = element;
 
+	console.log('controller.name', controller.name);
+	console.log({controller})
 	controller.$watch(listName, (value) => {
+		console.warn('watch', listName, 'triggered');
 		setContent(value);
 	});
 

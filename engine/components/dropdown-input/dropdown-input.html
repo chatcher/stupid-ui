@@ -1,0 +1,50 @@
+<style>
+	label {
+		margin-bottom: 4px;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+	}
+	input {
+		border: solid 1px #333;
+		border-radius: 4px;
+	}
+	input:focus {
+		outline: solid 2px #00fc;
+		border-color: #00f;
+	}
+	input:invalid {
+		outline-color: #f00a;
+		border-color: #f00;
+	}
+	.label-container {
+		position: relative;
+		top: 6px;
+		left: 6px;
+		padding: 0px 2px;
+		background: white;
+	}
+	.error-container {
+		padding-left: 6px;
+	}
+	.error {
+		color:  #d00;
+	}
+</style>
+
+<label>
+	<div class="label-container">
+		<span><slot></slot></span><span *ngIf="required">*</span>
+		<info-tooltip>tooltip</info-tooltip>
+	</div>
+
+	<select>
+		<option for-each="option" in="options">{{option.label}}</option>
+	</select>
+
+	<div class="error-container" if="error">
+		<p class="error">{{error}}</p>
+	</div>
+</label>
+
+<div> hi </div>

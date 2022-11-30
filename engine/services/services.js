@@ -1,7 +1,9 @@
+import { HttpService } from './http/http.js';
 import { services as projectServices } from '../../services.js';
 
 const serviceCache = {
 	$router: null,
+	$http: new HttpService(),
 };
 const promises = {};
 
